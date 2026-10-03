@@ -3,6 +3,9 @@
 @php
     $nav = config('moaum.nav.primary');
     $groups = config('moaum.nav.business_groups');
+    // Mega menu + footer division links come from the database (Module 2).
+    $divisionsByCategory = \App\Models\BusinessDivision::query()
+        ->publiclyVisible()->ordered()->get()->groupBy('category');
 @endphp
 
 <header class="sticky top-0 z-50 bg-white shadow-sm border-b border-slate-200" x-data="{ mobileMenu: false }">
@@ -34,14 +37,14 @@
                                         <div>
                                             <h4 class="font-semibold text-moaum-{{ $group['accent'] }} mb-3 text-sm uppercase tracking-wide">{{ $group['heading'] }}</h4>
                                             <ul class="space-y-2 text-sm">
-                                                @foreach ($group['items'] as $business)
-                                                    <li><a href="#" class="text-slate-600 hover:text-moaum-blue">{{ $business }}</a></li>
+                                                @foreach (($divisionsByCategory[$group['heading']] ?? collect())->take(6) as $business)
+                                                    <li><a href="{{ route('businesses.index', ['division' => $business->slug]) }}" class="text-slate-600 hover:text-moaum-blue">{{ $business->name }}</a></li>
                                                 @endforeach
                                             </ul>
                                         </div>
                                     @endforeach
                                     <div class="pt-2">
-                                        <a href="#" class="text-moaum-red font-medium inline-flex items-center">
+                                        <a href="{{ route('businesses.index') }}" class="text-moaum-red font-medium inline-flex items-center">
                                             <x-icon name="arrow-right" class="mr-1 w-4 h-4" /> View All Businesses
                                         </a>
                                     </div>
@@ -59,20 +62,20 @@
                             <div x-show="open" x-transition x-cloak
                                  class="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-elevated border border-slate-200 py-2">
                                 @foreach ($item['children'] as $child)
-                                    <a href="#" class="block px-4 py-2 hover:bg-slate-50 text-slate-700">{{ $child['label'] }}</a>
+                                    <a href="{{ route($child['route']) }}" class="block px-4 py-2 hover:bg-slate-50 text-slate-700">{{ $child['label'] }}</a>
                                 @endforeach
                             </div>
                         </div>
                     @else
-                        <a href="#" class="text-slate-700 hover:text-moaum-red font-medium transition">{{ $item['label'] }}</a>
+                        <a href="{{ route($item['route']) }}" class="text-slate-700 hover:text-moaum-red font-medium transition {{ request()->routeIs($item['route']) ? 'text-moaum-red' : '' }}">{{ $item['label'] }}</a>
                     @endif
                 @endforeach
             </nav>
 
             {{-- Desktop CTAs --}}
             <div class="hidden lg:flex items-center space-x-4">
-                <a href="#" class="text-moaum-blue font-medium hover:text-moaum-red transition">Request a Quote</a>
-                <x-button href="#" size="md">Request a Service</x-button>
+                <a href="{{ route('contact.index', ['topic' => 'quote']) }}" class="text-moaum-blue font-medium hover:text-moaum-red transition">Request a Quote</a>
+                <x-button href="{{ route('contact.index', ['topic' => 'service']) }}" size="md">Request a Service</x-button>
             </div>
 
             {{-- Mobile menu button --}}
@@ -87,11 +90,11 @@
     <div x-show="mobileMenu" x-cloak x-transition class="lg:hidden bg-white border-t border-slate-200">
         <div class="px-4 pt-2 pb-6 space-y-1 max-h-[80vh] overflow-y-auto">
             @foreach ($nav as $item)
-                <a href="#" class="block px-3 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 rounded-md">{{ $item['label'] }}</a>
+                <a href="{{ isset($item['route']) ? route($item['route']) : '#' }}" class="block px-3 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 rounded-md">{{ $item['label'] }}</a>
             @endforeach
             <div class="pt-4 space-y-3">
-                <x-button href="#" class="w-full">Request a Service</x-button>
-                <x-button href="#" variant="outline" class="w-full">Request a Quote</x-button>
+                <x-button href="{{ route('contact.index', ['topic' => 'service']) }}" class="w-full">Request a Service</x-button>
+                <x-button href="{{ route('contact.index', ['topic' => 'quote']) }}" variant="outline" class="w-full">Request a Quote</x-button>
             </div>
         </div>
     </div>

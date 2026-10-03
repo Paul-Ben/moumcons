@@ -97,6 +97,14 @@
         @apply block text-sm font-semibold text-moaum-charcoal mb-1.5;
     }
 
+    /* Aliases used by newer templates (login, CMS forms) */
+    .form-input { @apply input; }
+    .form-label { @apply label; }
+
+    .form-error {
+        @apply mt-1.5 text-sm font-medium text-moaum-red;
+    }
+
     .badge {
         @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
     }

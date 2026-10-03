@@ -21,8 +21,8 @@
             <div>
                 <h4 class="text-white font-semibold mb-4">Quick Links</h4>
                 <ul class="space-y-3">
-                    @foreach (['About Us', 'Our Businesses', 'Services', 'Projects', 'Training', 'Careers'] as $link)
-                        <li><a href="#" class="hover:text-moaum-red transition">{{ $link }}</a></li>
+                    @foreach ([['About Us', 'about.profile'], ['Our Businesses', 'businesses.index'], ['Services', 'services.index'], ['Projects', 'projects.index'], ['Training', 'training.index'], ['Careers', 'careers.index']] as [$label, $route])
+                        <li><a href="{{ route($route) }}" class="hover:text-moaum-red transition">{{ $label }}</a></li>
                     @endforeach
                 </ul>
             </div>
@@ -31,10 +31,10 @@
             <div>
                 <h4 class="text-white font-semibold mb-4">Business Divisions</h4>
                 <ul class="space-y-3">
-                    @foreach (['Printing & Publishing', 'Cleaning & Fumigation', 'AI & Digital Training', 'Construction Services', 'Agriculture & Farms'] as $division)
-                        <li><a href="#" class="hover:text-moaum-red transition">{{ $division }}</a></li>
+                    @foreach (\App\Models\BusinessDivision::query()->publiclyVisible()->ordered()->take(5)->get() as $division)
+                        <li><a href="{{ route('businesses.index', ['division' => $division->slug]) }}" class="hover:text-moaum-red transition">{{ $division->name }}</a></li>
                     @endforeach
-                    <li><a href="#" class="text-moaum-blue transition">View All →</a></li>
+                    <li><a href="{{ route('businesses.index') }}" class="text-moaum-blue transition">View All →</a></li>
                 </ul>
             </div>
 
