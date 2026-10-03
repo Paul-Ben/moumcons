@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Service extends Model
@@ -58,6 +59,16 @@ class Service extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(ServiceCategory::class, 'service_category_id');
+    }
+
+    public function serviceRequests(): HasMany
+    {
+        return $this->hasMany(ServiceRequest::class);
+    }
+
+    public function quoteRequests(): HasMany
+    {
+        return $this->hasMany(QuoteRequest::class);
     }
 
     /* ------------------------------- Helpers ----------------------------- */

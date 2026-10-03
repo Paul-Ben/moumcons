@@ -22,4 +22,16 @@ enum PricingType: string
     {
         return in_array($this, [self::Fixed, self::StartingFrom], true);
     }
+
+    /** Public display label for the pricing row (PRD §11 — never expose internal pricing). */
+    public function priceLabel(): ?string
+    {
+        return match ($this) {
+            self::Fixed => 'Fixed',
+            self::StartingFrom => 'Starting From',
+            self::QuoteRequired => 'Quote Required',
+            self::ContactUs => 'Contact Us',
+            self::NotPublished => null,   // no pricing shown at all
+        };
+    }
 }

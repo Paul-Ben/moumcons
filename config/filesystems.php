@@ -38,6 +38,19 @@ return [
             'report' => false,
         ],
 
+        /*
+         * Attachments uploaded through public engagement forms (enquiries,
+         * service/quote requests). Non-public: served only through signed,
+         * auth+permission-gated controller downloads (PRD §28 — never
+         * expose sensitive documents at predictable URLs).
+         */
+        'private' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/attachments'),
+            'throw' => false,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

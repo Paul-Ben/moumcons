@@ -61,6 +61,12 @@ class BusinessDivision extends Model
         return $this->hasMany(Service::class);
     }
 
+    public function capabilities(): HasMany
+    {
+        return $this->hasMany(DivisionCapability::class, 'business_division_id')
+            ->orderBy('sort_order');
+    }
+
     /* ------------------------------- Helpers ----------------------------- */
 
     public function isAvailable(): bool

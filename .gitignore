@@ -1,7 +1,1 @@
-node_modules/
-vendor/
-public/build/
-.env
-.phpunit.result.cache
-database/*.sqlite
-database/*.sqlite-journal
+(empty)

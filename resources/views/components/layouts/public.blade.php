@@ -1,10 +1,12 @@
+@props(['title' => null, 'metaDescription' => null])
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', config('moaum.company.name') . ' — ' . config('moaum.company.tagline'))</title>
-    <meta name="description" content="@yield('meta_description', 'MOAUM Consultancy Services Limited - The official business and investment arm of Rev. Fr. Moses Orshio Adasu University, Makurdi')">
+    <title>{{ $title ?? yield('title', config('moaum.company.name') . ' — ' . config('moaum.company.tagline')) }}</title>
+    <meta name="description" content="{{ $metaDescription ?? yield('meta_description', 'MOAUM Consultancy Services Limited - The official business and investment arm of Rev. Fr. Moses Orshio Adasu University, Makurdi') }}">
 
     {{-- Canonical/OG basics (full SEO meta handled in Module 11) --}}
     @stack('meta')
