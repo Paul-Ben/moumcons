@@ -15,7 +15,9 @@ class HomeController extends Controller
 {
     public function index(Request $request): View
     {
-        $stats = json_decode((string) Setting::get('home.stats', '[]'), true) ?: [];
+        // Setting::get() already returns JSON-decoded arrays for json-type rows.
+        $stats = Setting::get('home.stats', []);
+        $stats = is_array($stats) ? $stats : (json_decode((string) $stats, true) ?: []);
 
         return view('home', [
             'heroBadge' => Setting::get('home.hero.badge'),

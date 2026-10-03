@@ -25,10 +25,10 @@ class DatabaseSeeder extends Seeder
         ]);
 
         if (app()->environment('local')) {
-            User::factory()->create([
-                'name'  => 'Test User',
-                'email' => 'test@example.com',
-            ])->assignRole(Rbac::CUSTOMER);
+            User::firstOrCreate(
+                ['email' => 'test@example.com'],
+                ['name' => 'Test User']
+            )->assignRole(Rbac::CUSTOMER);
         }
     }
 }

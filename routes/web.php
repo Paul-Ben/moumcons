@@ -1,24 +1,35 @@
 <?php
 
+use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Public\BusinessController;
+use App\Http\Controllers\Public\ServiceCatalogController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Public site routes (Module 4+ will move these to controllers)
+| Public site routes
 |--------------------------------------------------------------------------
 */
 
-Route::view('/', 'home')->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Module 5 — Business Directory (PRD §9, business-detail.html prototype).
+Route::get('/businesses', [BusinessController::class, 'index'])->name('businesses.index');
+Route::get('/businesses/{division:slug}', [BusinessController::class, 'show'])
+    ->name('businesses.show');
+
+// Module 6 — Cross-division Services Catalogue (PRD §11).
+Route::get('/services', [ServiceCatalogController::class, 'index'])->name('services.index');
+Route::get('/services/{service:slug}', [ServiceCatalogController::class, 'show'])->name('services.show');
 
 // Placeholder routes referenced by config('moaum.nav') so the nav can be
-// wired up progressively in Modules 4–7 without broken links.
+// wired up progressively in later modules without broken links.
 foreach ([
     'about.profile' => '/about',
     'about.mission' => '/about/mission-vision',
     'about.leadership' => '/about/leadership',
     'about.university' => '/about/university-relationship',
-    'businesses.index' => '/businesses',
-    'services.index' => '/services',
     'projects.index' => '/projects',
     'training.index' => '/training',
     'news.index' => '/news',
@@ -60,4 +71,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::view('/dashboard', 'admin.dashboard')
         ->middleware('permission:view-admin-dashboard')
         ->name('dashboard');
+
+    // Module 10 — Audit log viewer (read-only, PRD §27/§31/§32).
+    Route::get('/audit-logs', [AuditLogController::class, 'index'])
+        ->middleware('permission:view-audit-logs')
+        ->name('audit-logs.index');
+    Route::get('/audit-logs/{auditLog}', [AuditLogController::class, 'show'])
+        ->middleware('permission:view-audit-logs')
+        ->name('audit-logs.show');
 });
