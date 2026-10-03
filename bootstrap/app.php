@@ -12,7 +12,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Spatie RBAC middleware aliases (Module 3).
+        $middleware->alias([
+            'role'               => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission'         => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'redirect-auth'      => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        ]);
+
+        // Unauthenticated users hitting protected routes are sent to the
+        // named login route instead of the default /login assumption.
+        $middleware->redirectGuestsTo(fn () => route('login'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

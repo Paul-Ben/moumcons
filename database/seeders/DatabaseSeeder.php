@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Support\Rbac;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -17,9 +18,17 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            RolePermissionSeeder::class,
+            AdminUserSeeder::class,
+            ContentSeeder::class,
         ]);
+
+        if (app()->environment('local')) {
+            User::firstOrCreate(
+                ['email' => 'test@example.com'],
+                ['name' => 'Test User']
+            )->assignRole(Rbac::CUSTOMER);
+        }
     }
 }

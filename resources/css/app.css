@@ -3,7 +3,149 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+/* ==========================================================================
+   MOAUM Design Tokens — from prototype-docs/MOAUM_Design_System.md
+   ========================================================================== */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Brand colours (logo-derived) */
+    --color-moaum-red: #C20409;
+    --color-moaum-red-dark: #9E0307;      /* hover state (prototype: hover:bg-red-700) */
+    --color-moaum-blue: #0887D6;
+    --color-moaum-blue-dark: #0670B2;
+    --color-moaum-green: #058230;
+    --color-moaum-charcoal: #1D241D;
+
+    /* Semantic colours */
+    --color-success: #15803D;
+    --color-warning: #CA8A04;
+    --color-danger: #B91C1C;
+    --color-info: #0284C7;
+
+    /* Typography: Inter = UI/body, Plus Jakarta Sans = display headings */
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+    /* Shadows (Design System §12) */
+    --shadow-card: 0 4px 20px rgb(15 23 42 / 0.06);
+    --shadow-elevated: 0 12px 40px rgb(15 23 42 / 0.10);
+}
+
+/* ==========================================================================
+   Base layer
+   ========================================================================== */
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply font-sans text-slate-700 antialiased bg-white;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-display text-moaum-charcoal;
+    }
+
+    /* Accessible focus ring in MOAUM blue (Design System §25) */
+    :focus-visible {
+        outline: 2px solid var(--color-moaum-blue);
+        outline-offset: 2px;
+    }
+}
+
+/* ==========================================================================
+   Component layer — shared primitives (§13 Buttons, §14 Cards, §25 Forms)
+   ========================================================================== */
+@layer components {
+    .btn-primary {
+        @apply inline-flex justify-center items-center gap-2 px-6 py-3 rounded-lg font-semibold
+               bg-moaum-red text-white transition shadow-lg shadow-moaum-red/20
+               hover:bg-moaum-red-dark focus-visible:ring-2 focus-visible:ring-moaum-blue
+               disabled:opacity-50 disabled:pointer-events-none;
+    }
+
+    .btn-secondary {
+        @apply inline-flex justify-center items-center gap-2 px-6 py-3 rounded-lg font-semibold
+               bg-moaum-blue text-white transition shadow-lg shadow-moaum-blue/20
+               hover:bg-moaum-blue-dark focus-visible:ring-2 focus-visible:ring-moaum-blue
+               disabled:opacity-50 disabled:pointer-events-none;
+    }
+
+    .btn-outline {
+        @apply inline-flex justify-center items-center gap-2 px-6 py-3 rounded-lg font-semibold
+               border-2 border-moaum-blue text-moaum-blue bg-transparent
+               hover:bg-moaum-blue hover:text-white transition
+               disabled:opacity-50 disabled:pointer-events-none;
+    }
+
+    .btn-ghost {
+        @apply inline-flex justify-center items-center gap-2 px-4 py-2 rounded-lg font-medium
+               text-slate-700 hover:bg-slate-100 transition;
+    }
+
+    .card {
+        @apply bg-white rounded-2xl border border-slate-200 p-6 shadow-card;
+    }
+
+    .input {
+        @apply w-full h-12 px-4 rounded-[10px] border border-slate-300 bg-white text-slate-700
+               placeholder:text-slate-400
+               focus:outline-none focus:ring-2 focus:ring-moaum-blue focus:border-transparent;
+    }
+
+    .label {
+        @apply block text-sm font-semibold text-moaum-charcoal mb-1.5;
+    }
+
+    /* Aliases used by newer templates (login, CMS forms) */
+    .form-input { @apply input; }
+    .form-label { @apply label; }
+
+    .form-error {
+        @apply mt-1.5 text-sm font-medium text-moaum-red;
+    }
+
+    .badge {
+        @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
+    }
+
+    .eyebrow {
+        @apply text-moaum-red font-semibold text-sm uppercase tracking-wide;
+    }
+
+    /* Decorative dot-grid background used in hero/CTA sections of index.html */
+    .dot-grid-red {
+        background-image: radial-gradient(circle at 2px 2px, #C20409 1px, transparent 0);
+        background-size: 40px 40px;
+    }
+
+    .dot-grid-blue {
+        background-image: radial-gradient(circle at 2px 2px, #0887D6 1px, transparent 0);
+        background-size: 32px 32px;
+    }
+}
+
+/* ==========================================================================
+   Utilities & motion (§24 Motion — respect reduced-motion)
+   ========================================================================== */
+[x-cloak] {
+    display: none !important;
+}
+
+.fade-up {
+    animation: moaumFadeUp 0.6s ease-out;
+}
+
+@keyframes moaumFadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }

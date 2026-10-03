@@ -1,0 +1,72 @@
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Company details (single source of truth for header/footer/contact)
+    |--------------------------------------------------------------------------
+    | Values marked CLIENT_TO_PROVIDE are placeholders awaiting client input
+    | per the PRD; they will move to the DB Settings table in Module 10.
+    */
+
+    'company' => [
+        'name' => 'MOAUM Consultancy Services Limited',
+        'short_name' => 'MOAUM Consultancy',
+        'parent' => 'Rev. Fr. Moses Orshio Adasu University, Makurdi',
+        'tagline' => 'Building Enterprise Value Through Diverse Business Solutions',
+        'email' => 'info@moaumconsultancy.com',
+        'phone' => 'CLIENT_TO_PROVIDE',
+        'address' => 'CLIENT_TO_PROVIDE',
+        'hours' => 'Mon - Fri: 8:00 AM - 5:00 PM',
+        'social' => [
+            'facebook' => '#',
+            'twitter' => '#',
+            'linkedin' => '#',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Navigation structure (mirrors prototype-docs/index.html mega menu)
+    |--------------------------------------------------------------------------
+    */
+
+    'nav' => [
+        'primary' => [
+            ['label' => 'Home', 'route' => 'home'],
+            ['label' => 'About', 'children' => [
+                ['label' => 'Company Profile', 'route' => 'about.profile'],
+                ['label' => 'Mission & Vision', 'route' => 'about.mission'],
+                ['label' => 'Leadership', 'route' => 'about.leadership'],
+                ['label' => 'University Relationship', 'route' => 'about.university'],
+            ]],
+            ['label' => 'Our Businesses', 'mega' => true],
+            ['label' => 'Services', 'route' => 'services.index'],
+            ['label' => 'Projects', 'route' => 'projects.index'],
+            ['label' => 'Training', 'route' => 'training.index'],
+            ['label' => 'News', 'route' => 'news.index'],
+            ['label' => 'Careers', 'route' => 'careers.index'],
+            ['label' => 'Contact', 'route' => 'contact.index'],
+        ],
+
+        // Mega-menu groups — Design System §19 grouping of the 16 divisions.
+        'business_groups' => [
+            ['heading' => 'Business & Professional', 'accent' => 'red', 'items' => [
+                'Printing & Publishing', 'Security', 'Cleaning & Fumigation', 'Consultancy',
+            ]],
+            ['heading' => 'Technology & Education', 'accent' => 'blue', 'items' => [
+                'AI & Digital Tech', 'Training', 'Staff School', 'ICT Secondary School',
+            ]],
+            ['heading' => 'Commerce & Hospitality', 'accent' => 'green', 'items' => [
+                'Super Credit Store', 'Restaurant/Catering', 'Property Development',
+            ]],
+            ['heading' => 'Industry & Infrastructure', 'accent' => 'charcoal', 'items' => [
+                'Construction Services', 'Construction Materials', 'Waste Management', 'Mining & Geo-Mining',
+            ]],
+            ['heading' => 'Agriculture & Logistics', 'accent' => 'green', 'items' => [
+                'Agriculture & Farms', 'Transportation',
+            ]],
+        ],
+    ],
+];
