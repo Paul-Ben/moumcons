@@ -30,14 +30,34 @@ foreach ([
 
 /*
 |--------------------------------------------------------------------------
-| Admin placeholder routes (replaced by real auth in Module 8)
+| Authentication (Module 3)
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\PasswordResetController;
+
+Route::middleware('redirect-auth')->group(function () {
+    Route::get('/login', [LoginController::class, 'create'])->name('login');
+    Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:10,1')->name('login.store');
+
+    // Password reset (Laravel Password broker).
+    Route::get('/forgot-password', [PasswordResetController::class, 'request'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'email'])->middleware('throttle:6,1')->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'resetForm'])->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'reset'])->middleware('throttle:6,1')->name('password.update');
 });
 
-// Temporary logout target until Fortify/Breeze-style auth lands in Module 8.
-Route::post('/logout', fn () => redirect('/'))->name('logout');
-Route::get('/login', fn () => redirect('/admin/dashboard'))->name('login');
+Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+
+/*
+|--------------------------------------------------------------------------
+| Admin (auth-protected from Module 3 onward; screens in Modules 8–10)
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    Route::view('/dashboard', 'admin.dashboard')
+        ->middleware('permission:view-admin-dashboard')
+        ->name('dashboard');
+});
