@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\QuoteStatus;
+use App\Models\Concerns\HasTriageScopes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +15,7 @@ use Illuminate\Support\Str;
  */
 class QuoteRequest extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTriageScopes;
 
     protected $fillable = [
         'name', 'organization', 'email', 'phone',
@@ -22,6 +23,7 @@ class QuoteRequest extends Model
         'requirements', 'estimated_quantity', 'desired_start_date',
         'desired_completion_date', 'budget_range', 'attachment', 'consent',
         'status', 'assigned_to', 'internal_notes',
+        'quoted_amount', 'quote_message', 'quote_valid_until', 'quote_sent_at',
     ];
 
     /** DB default + safety net so 'new' (a ServiceRequest value) is never used. */
@@ -37,6 +39,9 @@ class QuoteRequest extends Model
             'desired_start_date' => 'date',
             'desired_completion_date' => 'date',
             'consent' => 'boolean',
+            'quoted_amount' => 'decimal:2',
+            'quote_valid_until' => 'date',
+            'quote_sent_at' => 'datetime',
         ];
     }
 
@@ -74,7 +79,27 @@ class QuoteRequest extends Model
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
+    protected function triageSearchColumns(): array
+    {
+        return ['name', 'organization', 'email', 'reference', 'project_title'];
+    }
+
     /* ------------------------------- Helpers ----------------------------- */
+
+    /** Statuses that settle the quote (accepted, declined or converted). */
+    public const CLOSING_STATUSES = [
+        QuoteStatus::Accepted, QuoteStatus::Declined, QuoteStatus::OrderContract,
+    ];
+
+    /**
+     * The customer may see the prepared quote only once it has been sent —
+     * a draft amount sitting in Quote Preparation stays internal.
+     */
+    public function quoteIsVisibleToCustomer(): bool
+    {
+        return $this->quote_sent_at !== null
+            && ($this->status === QuoteStatus::QuoteSent || in_array($this->status, self::CLOSING_STATUSES, true));
+    }
 
     public static function findByPublicReference(string $reference, string $email): ?self
     {

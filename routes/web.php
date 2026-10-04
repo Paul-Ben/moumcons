@@ -3,6 +3,8 @@
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EnquiryController;
+use App\Http\Controllers\Admin\QuoteRequestController;
+use App\Http\Controllers\Admin\ServiceRequestController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\BusinessController;
 use App\Http\Controllers\Public\ContactController;
@@ -136,6 +138,24 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::patch('/enquiries/{enquiry}', [EnquiryController::class, 'update'])
         ->middleware('permission:view-enquiries')
         ->name('enquiries.update');
+
+    // M1 — Service request triage (PRD §12). Writes are authorised by
+    // UpdateServiceRequestRequest; the route guards visibility only.
+    Route::middleware('permission:view-service-requests')->group(function () {
+        Route::get('/service-requests', [ServiceRequestController::class, 'index'])->name('service-requests.index');
+        Route::get('/service-requests/{serviceRequest}', [ServiceRequestController::class, 'show'])->name('service-requests.show');
+        Route::get('/service-requests/{serviceRequest}/attachment', [ServiceRequestController::class, 'downloadAttachment'])->name('service-requests.attachment');
+        Route::patch('/service-requests/{serviceRequest}', [ServiceRequestController::class, 'update'])->name('service-requests.update');
+    });
+
+    // M1 — Quote requests (PRD §13). UpdateQuoteRequestRequest splits
+    // progression, quote preparation and settlement by permission.
+    Route::middleware('permission:view-quotes')->group(function () {
+        Route::get('/quote-requests', [QuoteRequestController::class, 'index'])->name('quote-requests.index');
+        Route::get('/quote-requests/{quoteRequest}', [QuoteRequestController::class, 'show'])->name('quote-requests.show');
+        Route::get('/quote-requests/{quoteRequest}/attachment', [QuoteRequestController::class, 'downloadAttachment'])->name('quote-requests.attachment');
+        Route::patch('/quote-requests/{quoteRequest}', [QuoteRequestController::class, 'update'])->name('quote-requests.update');
+    });
 
     // Module 10 — Audit log viewer (read-only, PRD §27/§31/§32).
     Route::get('/audit-logs', [AuditLogController::class, 'index'])

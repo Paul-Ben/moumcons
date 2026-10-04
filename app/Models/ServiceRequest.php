@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\RequestStatus;
+use App\Models\Concerns\HasTriageScopes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +16,7 @@ use Illuminate\Support\Str;
  */
 class ServiceRequest extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTriageScopes;
 
     protected $fillable = [
         'name', 'organization', 'email', 'phone',
@@ -65,6 +66,11 @@ class ServiceRequest extends Model
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    protected function triageSearchColumns(): array
+    {
+        return ['name', 'organization', 'email', 'reference', 'location'];
     }
 
     /* ------------------------------- Helpers ----------------------------- */

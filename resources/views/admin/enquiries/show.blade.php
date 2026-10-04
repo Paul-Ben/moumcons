@@ -36,23 +36,7 @@
                 </div>
 
                 @if ($enquiry->attachment)
-                    <div class="card flex flex-wrap items-center justify-between gap-3">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <span class="w-10 h-10 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
-                                <x-icon name="download" class="w-5 h-5" />
-                            </span>
-                            <div class="min-w-0">
-                                <p class="text-sm font-medium text-moaum-charcoal truncate">
-                                    {{ basename($enquiry->attachment) }}
-                                </p>
-                                <p class="text-xs text-slate-400">Customer upload &mdash; private storage</p>
-                            </div>
-                        </div>
-                        <a href="{{ route('admin.enquiries.attachment', $enquiry) }}"
-                           class="btn-secondary text-sm inline-flex items-center gap-2 shrink-0">
-                            <x-icon name="download" class="w-4 h-4" /> Download
-                        </a>
-                    </div>
+                    <x-admin.attachment-card :path="$enquiry->attachment" :href="route('admin.enquiries.attachment', $enquiry)" />
                 @endif
 
                 {{-- Internal notes are staff-only; never surfaced to the customer. --}}
@@ -63,31 +47,7 @@
                     </div>
                 @endif
 
-                {{-- Audit trail for this record --}}
-                <div class="card overflow-hidden p-0">
-                    <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                        <h2 class="font-semibold text-moaum-charcoal">Activity</h2>
-                        @can('view-audit-logs')
-                            <a href="{{ route('admin.audit-logs.index') }}" class="text-sm text-moaum-blue hover:underline">
-                                Full audit log
-                            </a>
-                        @endcan
-                    </div>
-                    @forelse ($trail as $entry)
-                        <div class="px-4 py-3 border-b border-slate-100 last:border-0 flex items-start gap-3">
-                            <x-badge :color="str_contains($entry->action, '.') ? 'blue' : 'slate'">{{ $entry->action }}</x-badge>
-                            <div class="min-w-0 flex-1">
-                                <p class="text-sm text-slate-700">{{ $entry->description }}</p>
-                                <p class="text-xs text-slate-400 mt-0.5">
-                                    {{ $entry->user?->name ?? 'System' }} &middot;
-                                    {{ $entry->created_at->format('d M Y, H:i') }}
-                                </p>
-                            </div>
-                        </div>
-                    @empty
-                        <p class="px-4 py-6 text-sm text-slate-500">No recorded activity yet.</p>
-                    @endforelse
-                </div>
+                <x-admin.activity-trail :trail="$trail" />
             </div>
 
             {{-- Triage --}}
@@ -201,10 +161,11 @@
                                 @error('internal_notes') <p class="form-error">{{ $message }}</p> @enderror
                             </div>
 
-                            <button type="submit" class="btn-primary w-full inline-flex items-center justify-center gap-2">
-                                <x-icon name="check-circle" class="w-4 h-4" /> Save changes
-                            </button>
                         @endif
+
+                        <button type="submit" class="btn-primary w-full inline-flex items-center justify-center gap-2">
+                            <x-icon name="check-circle" class="w-4 h-4" /> Save changes
+                        </button>
                     </form>
                 @else
                     <div class="card text-sm text-slate-500">

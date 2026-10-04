@@ -53,7 +53,11 @@
         <div class="card">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="font-display font-bold text-moaum-charcoal">Latest enquiries</h2>
-                <span class="text-xs text-slate-400">{{ $recentEnquiries->count() }} most recent</span>
+                @can('view-enquiries')
+                    <a href="{{ route('admin.enquiries.index') }}" class="text-sm text-moaum-blue font-semibold hover:underline">See all</a>
+                @else
+                    <span class="text-xs text-slate-400">{{ $recentEnquiries->count() }} most recent</span>
+                @endcan
             </div>
 
             @if ($recentEnquiries->isEmpty())
@@ -64,7 +68,11 @@
                         <li class="py-3 flex items-start justify-between gap-3">
                             <div class="min-w-0">
                                 <p class="text-sm font-medium text-slate-700 truncate">
-                                    {{ $enquiry->name }}
+                                    @can('view-enquiries')
+                                        <a href="{{ route('admin.enquiries.show', $enquiry) }}" class="hover:text-moaum-blue">{{ $enquiry->name }}</a>
+                                    @else
+                                        {{ $enquiry->name }}
+                                    @endcan
                                     <span class="text-slate-400 font-normal">· {{ $enquiry->division?->name ?? 'No division' }}</span>
                                 </p>
                                 <p class="text-xs text-slate-400 truncate">{{ $enquiry->subject }}</p>
@@ -82,7 +90,11 @@
         <div class="card">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="font-display font-bold text-moaum-charcoal">Latest service requests</h2>
-                <span class="text-xs text-slate-400">{{ $recentRequests->count() }} most recent</span>
+                @can('view-service-requests')
+                    <a href="{{ route('admin.service-requests.index') }}" class="text-sm text-moaum-blue font-semibold hover:underline">See all</a>
+                @else
+                    <span class="text-xs text-slate-400">{{ $recentRequests->count() }} most recent</span>
+                @endcan
             </div>
 
             @if ($recentRequests->isEmpty())
@@ -93,7 +105,11 @@
                         <li class="py-3 flex items-start justify-between gap-3">
                             <div class="min-w-0">
                                 <p class="text-sm font-medium text-slate-700 truncate">
-                                    {{ $request->reference }}
+                                    @can('view-service-requests')
+                                        <a href="{{ route('admin.service-requests.show', $request) }}" class="hover:text-moaum-blue">{{ $request->reference }}</a>
+                                    @else
+                                        {{ $request->reference }}
+                                    @endcan
                                     <span class="text-slate-400 font-normal">· {{ $request->division?->name ?? 'No division' }}</span>
                                 </p>
                                 <p class="text-xs text-slate-400 truncate">{{ $request->name }} — {{ $request->location ?? 'Location not given' }}</p>

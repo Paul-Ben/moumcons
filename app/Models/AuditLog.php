@@ -62,8 +62,18 @@ class AuditLog extends Model
 
         return $query->where(function (Builder $q) use ($action) {
             $q->where('action', $action)
-              ->orWhere('action', 'like', $action . '.%');
+                ->orWhere('action', 'like', $action.'.%');
         });
+    }
+
+    /** Entries recorded against one audited record, newest first. */
+    public function scopeTrailFor(Builder $query, Model $subject): Builder
+    {
+        return $query
+            ->where('subject_type', $subject->getMorphClass())
+            ->where('subject_id', $subject->getKey())
+            ->with('user:id,name')
+            ->latest('id');
     }
 
     public function scopeForUser(Builder $query, ?string $userId): Builder
@@ -109,8 +119,8 @@ class AuditLog extends Model
         foreach ($changes as $key => $change) {
             $out[] = [
                 'field' => Str::headline((string) $key),
-                'from'  => is_scalar($change['old'] ?? null) ? (string) $change['old'] : json_encode($change['old'] ?? null),
-                'to'    => is_scalar($change['new'] ?? null) ? (string) $change['new'] : json_encode($change['new'] ?? null),
+                'from' => is_scalar($change['old'] ?? null) ? (string) $change['old'] : json_encode($change['old'] ?? null),
+                'to' => is_scalar($change['new'] ?? null) ? (string) $change['new'] : json_encode($change['new'] ?? null),
             ];
         }
 

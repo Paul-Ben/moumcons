@@ -38,10 +38,22 @@ final class AdminNav
                 'permission' => 'view-services', 'pending' => 'Module 6',
             ],
             [
-                'label' => 'Enquiries & Requests', 'icon' => 'file-text',
+                'label' => 'Enquiries', 'icon' => 'mail',
                 'route' => 'admin.enquiries.index', 'active' => 'admin.enquiries.*',
                 'permission' => 'view-enquiries',
                 'count' => 'enquiries',
+            ],
+            [
+                'label' => 'Service Requests', 'icon' => 'file-text',
+                'route' => 'admin.service-requests.index', 'active' => 'admin.service-requests.*',
+                'permission' => 'view-service-requests',
+                'count' => 'service-requests',
+            ],
+            [
+                'label' => 'Quote Requests', 'icon' => 'sliders-horizontal',
+                'route' => 'admin.quote-requests.index', 'active' => 'admin.quote-requests.*',
+                'permission' => 'view-quotes',
+                'count' => 'quotes',
             ],
             [
                 'label' => 'Audit Logs', 'icon' => 'shield-check',
@@ -65,6 +77,8 @@ final class AdminNav
             $isActive = isset($item['active']) && Route::is($item['active']);
             $count = match ($item['count'] ?? null) {
                 'enquiries' => self::openEnquiryCount(),
+                'service-requests' => ServiceRequest::query()->open()->count(),
+                'quotes' => QuoteRequest::query()->actionable()->count(),
                 'all' => self::openTriageCount(),
                 default => null,
             };

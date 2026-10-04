@@ -8,6 +8,9 @@ use App\Models\ServiceRequest;
 use App\Models\User;
 use App\Notifications\AdminNewRequestAlert;
 use App\Notifications\EnquiryAssigned;
+use App\Notifications\QuoteAvailable;
+use App\Notifications\RequestAssigned;
+use App\Notifications\RequestStatusChanged;
 use App\Notifications\RequestSubmitted;
 use Illuminate\Support\Facades\Notification;
 
@@ -26,7 +29,7 @@ class RequestNotifier
         );
 
         $this->alertTriageUsers(
-            new AdminNewRequestAlert('service', $request->reference, $request->name, $request->division?->name ?? '—'),
+            new AdminNewRequestAlert('service', $request->reference, $request->name, $request->division?->name ?? '—', route('admin.service-requests.show', $request)),
             ['update-service-requests']
         );
     }
@@ -38,7 +41,7 @@ class RequestNotifier
         );
 
         $this->alertTriageUsers(
-            new AdminNewRequestAlert('quote', $quote->reference, $quote->name, $quote->division?->name ?? '—'),
+            new AdminNewRequestAlert('quote', $quote->reference, $quote->name, $quote->division?->name ?? '—', route('admin.quote-requests.show', $quote)),
             ['update-quotes']
         );
     }
@@ -54,7 +57,7 @@ class RequestNotifier
         );
 
         $this->alertTriageUsers(
-            new AdminNewRequestAlert('enquiry', $enquiry->reference, $enquiry->name, $enquiry->division?->name ?? 'General enquiry'),
+            new AdminNewRequestAlert('enquiry', $enquiry->reference, $enquiry->name, $enquiry->division?->name ?? 'General enquiry', route('admin.enquiries.show', $enquiry)),
             ['view-enquiries', 'update-enquiries']
         );
     }
@@ -66,6 +69,40 @@ class RequestNotifier
     public function enquiryAssigned(?User $assignee, Enquiry $enquiry): void
     {
         $assignee?->notify(new EnquiryAssigned($enquiry));
+    }
+
+    /** PRD §12/§13/§25 — a service or quote request has been handed to staff. */
+    public function requestAssigned(?User $assignee, ServiceRequest|QuoteRequest $request): void
+    {
+        if ($assignee === null) {
+            return;
+        }
+
+        $isQuote = $request instanceof QuoteRequest;
+
+        $assignee->notify(new RequestAssigned(
+            type: $isQuote ? 'quote' : 'service',
+            reference: $request->reference,
+            requesterName: $request->name,
+            summary: $isQuote ? $request->project_title : ($request->service?->name ?? $request->division?->name ?? 'Service request'),
+            url: $isQuote ? route('admin.quote-requests.show', $request) : route('admin.service-requests.show', $request),
+        ));
+    }
+
+    /** PRD §25 "Request status changed" — customer-facing status update. */
+    public function statusChanged(ServiceRequest|QuoteRequest $request): void
+    {
+        Notification::route('mail', $request->email)->notify(new RequestStatusChanged(
+            type: $request instanceof QuoteRequest ? 'quote' : 'service',
+            reference: $request->reference,
+            statusLabel: $request->status->label(),
+        ));
+    }
+
+    /** PRD §25 "Quote available". */
+    public function quoteSent(QuoteRequest $quote): void
+    {
+        Notification::route('mail', $quote->email)->notify(new QuoteAvailable($quote));
     }
 
     /**

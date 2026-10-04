@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\EnquiryStatus;
 use App\Enums\Priority;
+use App\Models\Concerns\HasTriageScopes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +17,7 @@ use Illuminate\Support\Str;
  */
 class Enquiry extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTriageScopes;
 
     protected $fillable = [
         'name', 'organization', 'email', 'phone', 'subject',
@@ -80,55 +81,13 @@ class Enquiry extends Model
         return $q->whereIn('status', [EnquiryStatus::New, EnquiryStatus::Open, EnquiryStatus::InProgress]);
     }
 
-    /** Free-text triage search across the fields staff actually scan. */
-    public function scopeSearch(Builder $q, ?string $term): Builder
-    {
-        if (blank($term)) {
-            return $q;
-        }
-
-        // Escape LIKE wildcards so a literal % or _ cannot widen the search.
-        $like = '%'.str_replace(['%', '_'], ['\%', '\_'], trim($term)).'%';
-
-        return $q->where(function (Builder $inner) use ($like): void {
-            $inner->where('name', 'like', $like)
-                ->orWhere('organization', 'like', $like)
-                ->orWhere('email', 'like', $like)
-                ->orWhere('reference', 'like', $like)
-                ->orWhere('subject', 'like', $like);
-        });
-    }
-
-    public function scopeStatus(Builder $q, ?string $status): Builder
-    {
-        return $status ? $q->where('status', $status) : $q;
-    }
-
     public function scopePriority(Builder $q, ?string $priority): Builder
     {
         return $priority ? $q->where('priority', $priority) : $q;
     }
 
-    public function scopeDivision(Builder $q, ?int $divisionId): Builder
+    protected function triageSearchColumns(): array
     {
-        return $divisionId ? $q->where('business_division_id', $divisionId) : $q;
-    }
-
-    public function scopeAssignedTo(Builder $q, ?int $userId): Builder
-    {
-        return $userId ? $q->where('assigned_to', $userId) : $q;
-    }
-
-    public function scopeUnassigned(Builder $q, bool $only = true): Builder
-    {
-        return $only ? $q->whereNull('assigned_to') : $q;
-    }
-
-    /** Received-date window; either bound may be omitted. */
-    public function scopeReceivedBetween(Builder $q, ?string $from, ?string $to): Builder
-    {
-        return $q
-            ->when($from, fn (Builder $b) => $b->whereDate('created_at', '>=', $from))
-            ->when($to, fn (Builder $b) => $b->whereDate('created_at', '<=', $to));
+        return ['name', 'organization', 'email', 'reference', 'subject'];
     }
 }

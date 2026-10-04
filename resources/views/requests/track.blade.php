@@ -44,6 +44,22 @@
                 </ol>
             @endif
 
+            {{-- PRD §13/§25 — the prepared quote, once staff have sent it. --}}
+            @if ($isQuote && $result->quoteIsVisibleToCustomer())
+                <div class="mt-8 rounded-xl border border-moaum-green/30 bg-moaum-green/5 p-5">
+                    <p class="text-sm font-semibold text-moaum-charcoal">Your quote</p>
+                    @if ($result->quoted_amount !== null)
+                        <p class="font-display text-2xl font-bold text-moaum-charcoal mt-1">₦{{ number_format((float) $result->quoted_amount, 2) }}</p>
+                    @endif
+                    @if (filled($result->quote_message))
+                        <p class="text-sm text-slate-600 whitespace-pre-line mt-2">{{ $result->quote_message }}</p>
+                    @endif
+                    @if ($result->quote_valid_until)
+                        <p class="text-xs text-slate-500 mt-2">Valid until {{ $result->quote_valid_until->format('j F Y') }}</p>
+                    @endif
+                </div>
+            @endif
+
             <p class="text-sm text-slate-500 mt-8 border-t border-slate-100 pt-5">
                 @if (in_array($result->status->value, ['completed', 'closed', 'cancelled', 'accepted', 'declined', 'order_contract'], true))
                     This request has reached a final status. For anything else, <a href="{{ route('contact.index') }}" class="text-moaum-blue font-semibold hover:underline">contact us</a>.

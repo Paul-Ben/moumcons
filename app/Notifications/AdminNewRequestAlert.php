@@ -12,10 +12,11 @@ class AdminNewRequestAlert extends Notification
     use Queueable;
 
     public function __construct(
-        public readonly string $type,       // 'service' | 'quote'
+        public readonly string $type,       // 'service' | 'quote' | 'enquiry'
         public readonly string $reference,
         public readonly string $requesterName,
         public readonly string $divisionName,
+        public readonly ?string $url = null,
     ) {}
 
     public function via(object $notifiable): array
@@ -27,7 +28,7 @@ class AdminNewRequestAlert extends Notification
     {
         return (new MailMessage)
             ->subject("New {$this->type} request: {$this->reference}")
-            ->line("{$this->requesterName} submitted a " . ucfirst($this->type) . " request for {$this->divisionName}.")
-            ->action('Open triage inbox', route('admin.dashboard'));
+            ->line("{$this->requesterName} submitted a ".ucfirst($this->type)." request for {$this->divisionName}.")
+            ->action('Open in admin', $this->url ?? route('admin.dashboard'));
     }
 }

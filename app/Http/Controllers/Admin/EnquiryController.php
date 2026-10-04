@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\EnquiryStatus;
 use App\Enums\Priority;
+use App\Http\Controllers\Admin\Concerns\StreamsPrivateAttachment;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateEnquiryRequest;
 use App\Models\AuditLog;
@@ -14,8 +15,6 @@ use App\Services\AuditLogger;
 use App\Services\RequestNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -34,6 +33,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class EnquiryController extends Controller
 {
+    use StreamsPrivateAttachment;
+
     public function __construct(private readonly RequestNotifier $notifier) {}
 
     /** GET /admin/enquiries — the triage queue. */
@@ -72,7 +73,7 @@ class EnquiryController extends Controller
             'statuses' => EnquiryStatus::options(),
             'priorities' => Priority::options(),
             'divisions' => BusinessDivision::query()->orderBy('name')->get(['id', 'name']),
-            'staff' => $this->assignableStaff(),
+            'staff' => User::query()->assignableStaff()->get(['id', 'name']),
             'counts' => $this->queueCounts(),
         ]);
     }
@@ -82,19 +83,12 @@ class EnquiryController extends Controller
     {
         $enquiry->load(['division', 'service', 'assignee']);
 
-        $trail = AuditLog::query()
-            ->where('subject_type', $enquiry->getMorphClass())
-            ->where('subject_id', $enquiry->getKey())
-            ->with('user:id,name')
-            ->latest('id')
-            ->get();
-
         return view('admin.enquiries.show', [
             'enquiry' => $enquiry,
-            'trail' => $trail,
+            'trail' => AuditLog::query()->trailFor($enquiry)->get(),
             'statuses' => EnquiryStatus::options(),
             'priorities' => Priority::options(),
-            'staff' => $this->assignableStaff(),
+            'staff' => User::query()->assignableStaff()->get(['id', 'name']),
         ]);
     }
 
@@ -145,28 +139,7 @@ class EnquiryController extends Controller
     {
         abort_if($request->user()->cannot('downloadAttachment', $enquiry), 403);
 
-        if (blank($enquiry->attachment) || ! Storage::disk('private')->exists($enquiry->attachment)) {
-            abort(404);
-        }
-
-        $audit->log(
-            action: 'enquiry.attachment_downloaded',
-            description: sprintf('Attachment for Enquiry %s downloaded by %s', $enquiry->reference, $request->user()->name),
-            properties: ['reference' => $enquiry->reference, 'path' => $enquiry->attachment],
-            subject: $enquiry,
-        );
-
-        return Storage::disk('private')->download($enquiry->attachment, $this->attachmentFilename($enquiry));
-    }
-
-    /** Active staff who are eligible to own an enquiry. */
-    private function assignableStaff(): Collection
-    {
-        return User::query()
-            ->where('is_active', true)
-            ->whereHas('roles')
-            ->orderBy('name')
-            ->get(['id', 'name']);
+        return $this->streamAttachment($enquiry, 'enquiry', $audit);
     }
 
     /** Queue summary shown as tiles above the table. */
@@ -183,14 +156,5 @@ class EnquiryController extends Controller
                 ->whereDate('resolved_at', today())
                 ->count(),
         ];
-    }
-
-    /**
-     * The stored name already carries the enquiry reference and the visitor's own
-     * filename, so it can be handed to the browser unchanged.
-     */
-    private function attachmentFilename(Enquiry $enquiry): string
-    {
-        return basename($enquiry->attachment);
     }
 }
