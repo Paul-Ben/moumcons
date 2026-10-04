@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\BusinessDivisionController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EnquiryController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\QuoteRequestController;
+use App\Http\Controllers\Admin\ServiceCategoryController;
+use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\ServiceRequestController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\BusinessController;
@@ -156,6 +159,23 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::get('/quote-requests/{quoteRequest}', [QuoteRequestController::class, 'show'])->name('quote-requests.show');
         Route::get('/quote-requests/{quoteRequest}/attachment', [QuoteRequestController::class, 'downloadAttachment'])->name('quote-requests.attachment');
         Route::patch('/quote-requests/{quoteRequest}', [QuoteRequestController::class, 'update'])->name('quote-requests.update');
+    });
+
+    // M3 — Business divisions (PRD §10, /admin/businesses in §31) and the
+    // services catalogue (§11). Per-action checks live in the policies and
+    // form requests; the group guards visibility.
+    Route::middleware('permission:view-divisions')->group(function () {
+        Route::resource('businesses', BusinessDivisionController::class)
+            ->except('show')
+            ->parameters(['businesses' => 'division'])
+            ->names('divisions');
+    });
+
+    Route::middleware('permission:view-services')->group(function () {
+        Route::resource('services', ServiceController::class)->except('show');
+        Route::resource('service-categories', ServiceCategoryController::class)
+            ->only(['index', 'store', 'update', 'destroy'])
+            ->parameters(['service-categories' => 'category']);
     });
 
     // M2 — Media library (PRD §19/§22). Per-action checks live in MediaPolicy;

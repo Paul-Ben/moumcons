@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasUniqueSlug;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 
 class ServiceCategory extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUniqueSlug;
 
     protected $fillable = ['name', 'slug', 'description', 'sort_order'];
 
@@ -18,12 +19,13 @@ class ServiceCategory extends Model
         return $this->hasMany(Service::class);
     }
 
-    protected static function booted(): void
+    public function scopeOrdered(Builder $q): Builder
     {
-        static::creating(function (self $category) {
-            if (empty($category->slug)) {
-                $category->slug = Str::slug($category->name);
-            }
-        });
+        return $q->orderBy('sort_order')->orderBy('name');
+    }
+
+    protected function slugSource(): string
+    {
+        return 'name';
     }
 }

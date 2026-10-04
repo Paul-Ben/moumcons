@@ -31,11 +31,13 @@ final class AdminNav
             ],
             [
                 'label' => 'Business Divisions', 'icon' => 'building',
-                'permission' => 'view-divisions', 'pending' => 'Module 6',
+                'route' => 'admin.divisions.index', 'active' => 'admin.divisions.*',
+                'permission' => 'view-divisions',
             ],
             [
                 'label' => 'Services', 'icon' => 'briefcase',
-                'permission' => 'view-services', 'pending' => 'Module 6',
+                'route' => 'admin.services.index', 'active' => ['admin.services.*', 'admin.service-categories.*'],
+                'permission' => 'view-services',
             ],
             [
                 'label' => 'Enquiries', 'icon' => 'mail',
@@ -79,7 +81,7 @@ final class AdminNav
             }
 
             $href = isset($item['route']) ? route($item['route']) : null;
-            $isActive = isset($item['active']) && Route::is($item['active']);
+            $isActive = isset($item['active']) && Route::is(...(array) $item['active']);
             $count = match ($item['count'] ?? null) {
                 'enquiries' => self::openEnquiryCount(),
                 'service-requests' => ServiceRequest::query()->open()->count(),

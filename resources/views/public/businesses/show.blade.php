@@ -52,11 +52,7 @@
                 {{-- Overview --}}
                 <div>
                     <h2 class="font-display text-2xl font-bold text-moaum-charcoal mb-4">Overview</h2>
-                    @foreach (preg_split('/\R{2}/', (string) $division->full_description) as $paragraph)
-                        @if (trim($paragraph) !== '')
-                            <p class="text-slate-600 leading-relaxed mb-4">{{ trim($paragraph) }}</p>
-                        @endif
-                    @endforeach
+                    <x-rich-content :html="$division->full_description" class="text-slate-600" />
                 </div>
 
                 {{-- Key Capabilities --}}

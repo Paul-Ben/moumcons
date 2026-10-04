@@ -26,6 +26,28 @@ final class RichText
         return self::sanitizer()->sanitize($html);
     }
 
+    /**
+     * HTML for public pages. Content saved before the editor existed is plain
+     * text with blank-line paragraphs, so that is escaped and wrapped; HTML is
+     * sanitised again on the way out in case it reached the database by a
+     * path that bypassed the cast.
+     */
+    public static function render(?string $value): string
+    {
+        if (blank($value)) {
+            return '';
+        }
+
+        if ($value === strip_tags($value)) {
+            return collect(preg_split('/\R{2,}/', trim($value)))
+                // Decode first: the write-side sanitiser has already encoded "&".
+                ->map(fn (string $p) => '<p>'.nl2br(e(html_entity_decode(trim($p), ENT_QUOTES | ENT_HTML5))).'</p>')
+                ->implode('');
+        }
+
+        return (string) self::sanitize($value);
+    }
+
     /** Plain-text version, e.g. for meta descriptions and excerpts. */
     public static function toPlainText(?string $html): string
     {

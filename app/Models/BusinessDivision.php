@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use App\Casts\RichTextCast;
 use App\Enums\DivisionStatus;
+use App\Models\Concerns\HasUniqueSlug;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 
 class BusinessDivision extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUniqueSlug;
 
     protected $table = 'business_divisions';
 
@@ -26,6 +27,7 @@ class BusinessDivision extends Model
     {
         return [
             'status' => DivisionStatus::class,
+            'full_description' => RichTextCast::class,
             'featured' => 'boolean',
             'published_at' => 'datetime',
         ];
@@ -61,6 +63,21 @@ class BusinessDivision extends Model
         return $this->hasMany(Service::class);
     }
 
+    public function serviceRequests(): HasMany
+    {
+        return $this->hasMany(ServiceRequest::class, 'business_division_id');
+    }
+
+    public function quoteRequests(): HasMany
+    {
+        return $this->hasMany(QuoteRequest::class, 'business_division_id');
+    }
+
+    public function enquiries(): HasMany
+    {
+        return $this->hasMany(Enquiry::class, 'business_division_id');
+    }
+
     public function capabilities(): HasMany
     {
         return $this->hasMany(DivisionCapability::class, 'business_division_id')
@@ -74,19 +91,8 @@ class BusinessDivision extends Model
         return $this->status === DivisionStatus::Active;
     }
 
-    /** Slug generated from name on creation (unique-suffix guarded). */
-    protected static function booted(): void
+    protected function slugSource(): string
     {
-        static::creating(function (self $division) {
-            if (empty($division->slug)) {
-                $base = Str::slug($division->name);
-                $slug = $base;
-                $i = 1;
-                while (static::where('slug', $slug)->exists()) {
-                    $slug = $base . '-' . ++$i;
-                }
-                $division->slug = $slug;
-            }
-        });
+        return 'name';
     }
 }

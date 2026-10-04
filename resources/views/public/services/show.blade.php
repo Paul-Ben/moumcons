@@ -38,15 +38,11 @@
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid lg:grid-cols-[2fr_1fr] gap-10">
         <div>
             <h2 class="font-display text-2xl font-bold text-moaum-charcoal mb-4">Overview</h2>
-            <div class="prose prose-slate max-w-none text-slate-700 space-y-4">
-                @if ($service->description)
-                    @foreach (preg_split('/\n\n+/', strip_tags($service->description)) as $paragraph)
-                        <p>{{ $paragraph }}</p>
-                    @endforeach
-                @else
-                    <p>Contact the {{ $service->division?->name ?? 'MOAUM'}} team to discuss how this service can support your organisation.</p>
-                @endif
-            </div>
+            @if ($service->description)
+                <x-rich-content :html="$service->description" />
+            @else
+                <p class="text-slate-700">Contact the {{ $service->division?->name ?? 'MOAUM' }} team to discuss how this service can support your organisation.</p>
+            @endif
         </div>
 
         {{-- Sidebar --}}

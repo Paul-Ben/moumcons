@@ -2,18 +2,19 @@
 
 namespace App\Models;
 
+use App\Casts\RichTextCast;
 use App\Enums\PricingType;
 use App\Enums\ServiceStatus;
+use App\Models\Concerns\HasUniqueSlug;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 
 class Service extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUniqueSlug;
 
     protected $fillable = [
         'business_division_id', 'service_category_id', 'name', 'slug',
@@ -27,6 +28,7 @@ class Service extends Model
         return [
             'pricing_type' => PricingType::class,
             'status' => ServiceStatus::class,
+            'description' => RichTextCast::class,
             'featured' => 'boolean',
             'starting_price' => 'decimal:2',
         ];
@@ -80,12 +82,8 @@ class Service extends Model
             && $this->starting_price !== null;
     }
 
-    protected static function booted(): void
+    protected function slugSource(): string
     {
-        static::creating(function (self $service) {
-            if (empty($service->slug)) {
-                $service->slug = Str::slug($service->name);
-            }
-        });
+        return 'name';
     }
 }
