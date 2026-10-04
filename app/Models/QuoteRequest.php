@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\QuoteStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -51,6 +52,23 @@ class QuoteRequest extends Model
         return $this->belongsTo(Service::class);
     }
 
+    /* -------------------------------- Scopes ----------------------------- */
+
+    /**
+     * Quotes that still need a decision from us (PRD §13). Accepted, declined
+     * and converted orders are finished, so they drop out.
+     */
+    public function scopeActionable(Builder $q): Builder
+    {
+        return $q->whereIn('status', [
+            QuoteStatus::Requested,
+            QuoteStatus::Review,
+            QuoteStatus::Clarification,
+            QuoteStatus::QuotePreparation,
+            QuoteStatus::QuoteSent,
+        ]);
+    }
+
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
@@ -95,7 +113,7 @@ class QuoteRequest extends Model
         static::creating(function (self $quote) {
             if (empty($quote->reference)) {
                 do {
-                    $ref = 'QTE-' . now()->format('ymd') . '-' . strtoupper(Str::random(4));
+                    $ref = 'QTE-'.now()->format('ymd').'-'.strtoupper(Str::random(4));
                 } while (static::where('reference', $ref)->exists());
                 $quote->reference = $ref;
             }

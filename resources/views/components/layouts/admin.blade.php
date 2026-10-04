@@ -21,18 +21,12 @@
             </div>
 
             <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1" aria-label="Admin navigation">
-                @php
-                    // Admin sidebar — Design System §26 & prototype-docs/admin.html.
-                    // Real routes are wired in Module 8/9; hrefs stay '#' for now.
-                    $adminNav = [
-                        ['label' => 'Dashboard', 'icon' => 'layout-grid', 'active' => true],
-                        ['label' => 'Business Divisions', 'icon' => 'building'],
-                        ['label' => 'Services', 'icon' => 'briefcase'],
-                        ['label' => 'Enquiries & Requests', 'icon' => 'file-text', 'count' => 12],
-                        ['label' => 'Users & Roles', 'icon' => 'users'],
-                    ];
-                @endphp
-                @foreach ($adminNav as $item)
+                {{--
+                    Menu comes from App\Support\AdminNav via a view composer in
+                    AppServiceProvider: permission-filtered, route-aware, and it
+                    flags modules that have not shipped instead of linking to a 404.
+                --}}
+                @foreach ($adminNav ?? [] as $item)
                     @include('partials.admin-nav-item', ['item' => $item])
                 @endforeach
             </nav>

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\RequestStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -42,6 +43,23 @@ class ServiceRequest extends Model
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
+    }
+
+    /* -------------------------------- Scopes ----------------------------- */
+
+    /**
+     * Requests still moving through triage — i.e. everything that has not been
+     * completed, closed or cancelled (PRD §12).
+     */
+    public function scopeOpen(Builder $q): Builder
+    {
+        return $q->whereIn('status', [
+            RequestStatus::New,
+            RequestStatus::Assigned,
+            RequestStatus::InProgress,
+            RequestStatus::AwaitingCustomer,
+            RequestStatus::Quoted,
+        ]);
     }
 
     public function assignee(): BelongsTo
@@ -87,7 +105,7 @@ class ServiceRequest extends Model
         static::creating(function (self $request) {
             if (empty($request->reference)) {
                 do {
-                    $ref = 'SRQ-' . now()->format('ymd') . '-' . strtoupper(Str::random(4));
+                    $ref = 'SRQ-'.now()->format('ymd').'-'.strtoupper(Str::random(4));
                 } while (static::where('reference', $ref)->exists());
                 $request->reference = $ref;
             }

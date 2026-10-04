@@ -38,26 +38,39 @@
                 </ul>
             </div>
 
-            {{-- Contact --}}
+            {{-- Contact — values come from CompanyDetails so CLIENT_TO_PROVIDE placeholders are never printed (PRD §20). --}}
             <div>
                 <h4 class="text-white font-semibold mb-4">Contact Us</h4>
                 <ul class="space-y-3 text-slate-400">
-                    <li class="flex items-start">
-                        <x-icon name="map-pin" class="w-5 h-5 mr-3 mt-0.5 text-moaum-red" />
-                        <span>{{ config('moaum.company.address') }}</span>
-                    </li>
-                    <li class="flex items-center">
-                        <x-icon name="phone" class="w-5 h-5 mr-3 text-moaum-red" />
-                        <span>{{ config('moaum.company.phone') }}</span>
-                    </li>
-                    <li class="flex items-center">
-                        <x-icon name="mail" class="w-5 h-5 mr-3 text-moaum-red" />
-                        <span>{{ config('moaum.company.email') }}</span>
-                    </li>
-                    <li class="flex items-center">
-                        <x-icon name="clock" class="w-5 h-5 mr-3 text-moaum-red" />
-                        <span>{{ config('moaum.company.hours') }}</span>
-                    </li>
+                    @if (\App\Support\CompanyDetails::has('address'))
+                        <li class="flex items-start">
+                            <x-icon name="map-pin" class="w-5 h-5 mr-3 mt-0.5 text-moaum-red" />
+                            <span>{{ \App\Support\CompanyDetails::get('address') }}</span>
+                        </li>
+                    @endif
+                    @if (\App\Support\CompanyDetails::has('phone'))
+                        <li class="flex items-center">
+                            <x-icon name="phone" class="w-5 h-5 mr-3 text-moaum-red" />
+                            <span>{{ \App\Support\CompanyDetails::get('phone') }}</span>
+                        </li>
+                    @endif
+                    @if (\App\Support\CompanyDetails::has('email'))
+                        <li class="flex items-center">
+                            <x-icon name="mail" class="w-5 h-5 mr-3 text-moaum-red" />
+                            <span>{{ \App\Support\CompanyDetails::get('email') }}</span>
+                        </li>
+                    @endif
+                    @if (\App\Support\CompanyDetails::has('hours'))
+                        <li class="flex items-center">
+                            <x-icon name="clock" class="w-5 h-5 mr-3 text-moaum-red" />
+                            <span>{{ \App\Support\CompanyDetails::get('hours') }}</span>
+                        </li>
+                    @endif
+                    @if (! \App\Support\CompanyDetails::has('address') && ! \App\Support\CompanyDetails::has('phone'))
+                        <li class="text-slate-500 text-sm">
+                            Call or email us — full office details are coming shortly.
+                        </li>
+                    @endif
                 </ul>
             </div>
         </div>

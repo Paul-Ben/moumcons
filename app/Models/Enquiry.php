@@ -20,7 +20,7 @@ class Enquiry extends Model
 
     protected $fillable = [
         'name', 'organization', 'email', 'phone', 'subject',
-        'business_division_id', 'service_id', 'message', 'attachment',
+        'business_division_id', 'service_id', 'message', 'attachment', 'consent',
         'status', 'assigned_to', 'priority', 'internal_notes', 'resolved_at',
     ];
 
@@ -66,7 +66,7 @@ class Enquiry extends Model
         static::creating(function (self $enquiry) {
             if (empty($enquiry->reference)) {
                 do {
-                    $ref = 'ENQ-' . now()->format('ymd') . '-' . strtoupper(Str::random(4));
+                    $ref = 'ENQ-'.now()->format('ymd').'-'.strtoupper(Str::random(4));
                 } while (static::where('reference', $ref)->exists());
                 $enquiry->reference = $ref;
             }

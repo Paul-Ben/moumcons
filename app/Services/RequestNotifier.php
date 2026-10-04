@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Enquiry;
 use App\Models\QuoteRequest;
 use App\Models\ServiceRequest;
 use App\Models\User;
@@ -10,9 +11,10 @@ use App\Notifications\RequestSubmitted;
 use Illuminate\Support\Facades\Notification;
 
 /**
- * PRD §12/§13/§25 — outbound notifications for the customer request flows:
- * customer receipt + triage alert. Uses the Notifications API; the Queueable
- * trait routes these through the queue in production and sync in tests.
+ * PRD §12/§13/§21/§25 — outbound notifications for the customer request flows
+ * and the contact form: customer receipt + triage alert. Uses the Notifications
+ * API; the Queueable trait routes these through the queue in production and
+ * sync in tests.
  */
 class RequestNotifier
 {
@@ -23,7 +25,8 @@ class RequestNotifier
         );
 
         $this->alertTriageUsers(
-            new AdminNewRequestAlert('service', $request->reference, $request->name, $request->division?->name ?? '—')
+            new AdminNewRequestAlert('service', $request->reference, $request->name, $request->division?->name ?? '—'),
+            ['update-service-requests']
         );
     }
 
@@ -34,12 +37,33 @@ class RequestNotifier
         );
 
         $this->alertTriageUsers(
-            new AdminNewRequestAlert('quote', $quote->reference, $quote->name, $quote->division?->name ?? '—')
+            new AdminNewRequestAlert('quote', $quote->reference, $quote->name, $quote->division?->name ?? '—'),
+            ['update-quotes']
         );
     }
 
-    /** Active users who can work service or quote requests. */
-    private function alertTriageUsers(AdminNewRequestAlert $alert): void
+    /**
+     * PRD §21/§25 — contact-form enquiry. Reuses the same two notifications as
+     * the request flows: a receipt for the visitor, an alert for triage staff.
+     */
+    public function enquirySubmitted(Enquiry $enquiry): void
+    {
+        Notification::route('mail', $enquiry->email)->notify(
+            new RequestSubmitted('enquiry', $enquiry->reference, $enquiry->subject)
+        );
+
+        $this->alertTriageUsers(
+            new AdminNewRequestAlert('enquiry', $enquiry->reference, $enquiry->name, $enquiry->division?->name ?? 'General enquiry'),
+            ['view-enquiries', 'update-enquiries']
+        );
+    }
+
+    /**
+     * Active users who can work the given flow.
+     *
+     * @param  list<string>  $permissions  permissions that qualify a recipient
+     */
+    private function alertTriageUsers(AdminNewRequestAlert $alert, array $permissions): void
     {
         /*
          * Resolved through the roles relation instead of spatie's
@@ -51,10 +75,7 @@ class RequestNotifier
          */
         User::query()
             ->where('is_active', true)
-            ->whereHas('roles.permissions', fn ($q) => $q->whereIn('name', [
-                'update-service-requests',
-                'update-quotes',
-            ]))
+            ->whereHas('roles.permissions', fn ($q) => $q->whereIn('name', $permissions))
             ->get()
             ->each(fn (User $user) => $user->notify($alert));
     }

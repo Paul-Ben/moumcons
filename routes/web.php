@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\BusinessController;
+use App\Http\Controllers\Public\ContactController;
 use App\Http\Controllers\Public\ServiceCatalogController;
 use App\Http\Controllers\Requests\RequestQuoteController;
 use App\Http\Controllers\Requests\RequestServiceController;
@@ -59,10 +61,26 @@ foreach ([
     'training.index' => '/training',
     'news.index' => '/news',
     'careers.index' => '/careers',
-    'contact.index' => '/contact',
 ] as $name => $uri) {
     Route::view($uri, 'placeholder')->name($name);
 }
+
+/*
+|--------------------------------------------------------------------------
+| Contact & Enquiries (Module 3, PRD §20/§21)
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/contact', [ContactController::class, 'create'])->name('contact.index');
+Route::post('/contact', [ContactController::class, 'store'])
+    ->middleware('throttle:6,1')
+    ->name('contact.store');
+// The confirmation page echoes the visitor's name, email and message, so it is
+// reachable only through the signed link issued at submission time — a bare
+// reference is guessable and must not expose enquiry contents.
+Route::get('/contact/received/{reference}', [ContactController::class, 'confirmation'])
+    ->middleware(['signed', 'throttle:30,1'])
+    ->name('contact.confirmation');
 
 /*
 |--------------------------------------------------------------------------
@@ -93,7 +111,10 @@ Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')-
 */
 
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
-    Route::view('/dashboard', 'admin.dashboard')
+    // Module 2 - Administration Dashboard (PRD §24).
+    Route::get('/', fn () => redirect()->route('admin.dashboard'));
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])
         ->middleware('permission:view-admin-dashboard')
         ->name('dashboard');
 
