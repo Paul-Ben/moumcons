@@ -3,7 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Admin') — MOAUM Admin</title>
+    {{-- Reads the `title` attribute passed to <x-layouts.admin title="…">; this
+         layout is a component, so @yield('title') would never receive it. --}}
+    <title>{{ $title ?? 'Admin' }} &middot; MOAUM Admin</title>
     <meta name="robots" content="noindex, nofollow">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
@@ -68,6 +70,26 @@
             </header>
 
             <main class="flex-1 overflow-y-auto p-6">
+                {{-- Flash feedback for admin write actions (triage updates, etc).
+                     Tone classes are spelled out because Tailwind only generates
+                     utilities it can see as complete class names in source. --}}
+                @php
+                    $flashTones = [
+                        'success' => ['border-emerald-200 bg-emerald-50 text-emerald-800', 'check-circle'],
+                        'error' => ['border-red-200 bg-red-50 text-red-800', 'x'],
+                        'warning' => ['border-amber-200 bg-amber-50 text-amber-800', 'zap'],
+                    ];
+                @endphp
+                @foreach ($flashTones as $key => [$classes, $icon])
+                    @if (session($key))
+                        <div role="status"
+                             class="mb-4 flex items-start gap-2 rounded-xl border px-4 py-3 text-sm {{ $classes }}">
+                            <x-icon :name="$icon" class="w-4 h-4 mt-0.5 shrink-0" />
+                            <span>{{ session($key) }}</span>
+                        </div>
+                    @endif
+                @endforeach
+
                 {{ $slot ?? '' }}
                 @yield('content')
             </main>

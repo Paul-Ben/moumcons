@@ -7,6 +7,7 @@ use App\Models\QuoteRequest;
 use App\Models\ServiceRequest;
 use App\Models\User;
 use App\Notifications\AdminNewRequestAlert;
+use App\Notifications\EnquiryAssigned;
 use App\Notifications\RequestSubmitted;
 use Illuminate\Support\Facades\Notification;
 
@@ -56,6 +57,15 @@ class RequestNotifier
             new AdminNewRequestAlert('enquiry', $enquiry->reference, $enquiry->name, $enquiry->division?->name ?? 'General enquiry'),
             ['view-enquiries', 'update-enquiries']
         );
+    }
+
+    /**
+     * PRD §21/§25 — an enquiry has been handed to a member of staff. Null-safe
+     * so an unassign (or reassignment) never sends anything.
+     */
+    public function enquiryAssigned(?User $assignee, Enquiry $enquiry): void
+    {
+        $assignee?->notify(new EnquiryAssigned($enquiry));
     }
 
     /**

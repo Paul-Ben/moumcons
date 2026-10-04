@@ -39,8 +39,9 @@ final class AdminNav
             ],
             [
                 'label' => 'Enquiries & Requests', 'icon' => 'file-text',
-                'permission' => 'view-enquiries', 'pending' => 'Module 4',
-                'count' => true,
+                'route' => 'admin.enquiries.index', 'active' => 'admin.enquiries.*',
+                'permission' => 'view-enquiries',
+                'count' => 'enquiries',
             ],
             [
                 'label' => 'Audit Logs', 'icon' => 'shield-check',
@@ -62,7 +63,11 @@ final class AdminNav
 
             $href = isset($item['route']) ? route($item['route']) : null;
             $isActive = isset($item['active']) && Route::is($item['active']);
-            $count = ! empty($item['count']) ? self::openTriageCount() : null;
+            $count = match ($item['count'] ?? null) {
+                'enquiries' => self::openEnquiryCount(),
+                'all' => self::openTriageCount(),
+                default => null,
+            };
 
             unset($item['route'], $item['active'], $item['permission'], $item['count']);
 
@@ -85,5 +90,15 @@ final class AdminNav
         return Enquiry::query()->open()->count()
             + ServiceRequest::query()->open()->count()
             + QuoteRequest::query()->actionable()->count();
+    }
+
+    /**
+     * Open enquiries only. The badge sits next to the enquiries link, so it
+     * counts what that screen actually lists; the dashboard's "open items"
+     * widget uses openTriageCount() for the whole cross-flow picture.
+     */
+    public static function openEnquiryCount(): int
+    {
+        return Enquiry::query()->open()->count();
     }
 }

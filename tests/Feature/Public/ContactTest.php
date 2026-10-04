@@ -201,6 +201,37 @@ class ContactTest extends TestCase
         Storage::disk('private')->assertExists($enquiry->attachment);
     }
 
+    public function test_attachment_keeps_a_readable_name_for_triage(): void
+    {
+        // store() would hash the name, leaving staff with an opaque filename in
+        // the queue; the reference plus the visitor's own name is kept instead.
+        Notification::fake();
+        Storage::fake('private');
+
+        $this->post(route('contact.store'), $this->payload([
+            'attachment' => UploadedFile::fake()->create('Site Brief.pdf', 120, 'application/pdf'),
+        ]))->assertSessionHasNoErrors();
+
+        $enquiry = Enquiry::sole();
+
+        $this->assertSame("enquiries/{$enquiry->reference}-site-brief.pdf", $enquiry->attachment);
+    }
+
+    public function test_attachment_names_cannot_escape_the_directory(): void
+    {
+        Notification::fake();
+        Storage::fake('private');
+
+        $this->post(route('contact.store'), $this->payload([
+            'attachment' => UploadedFile::fake()->create('../../etc/passwd.pdf', 10, 'application/pdf'),
+        ]))->assertSessionHasNoErrors();
+
+        $enquiry = Enquiry::sole();
+
+        $this->assertStringStartsWith('enquiries/', $enquiry->attachment);
+        $this->assertStringNotContainsString('..', $enquiry->attachment);
+    }
+
     public function test_submission_requires_consent_and_a_message(): void
     {
         Notification::fake();

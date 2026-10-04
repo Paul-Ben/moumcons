@@ -10,7 +10,9 @@ use App\Models\Service;
 use App\Services\RequestNotifier;
 use App\Support\CompanyDetails;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**
@@ -22,6 +24,14 @@ use Illuminate\View\View;
  */
 class ContactController extends Controller
 {
+    /**
+     * Must stay in step with the 'attachment' mimes rule on StoreEnquiryRequest:
+     * anything outside this list is stored with a neutral extension.
+     */
+    private const ALLOWED_ATTACHMENT_EXTENSIONS = [
+        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'png', 'jpg', 'jpeg', 'zip',
+    ];
+
     public function create(): View
     {
         return view('public.contact.create', [
@@ -46,11 +56,22 @@ class ContactController extends Controller
     {
         $data = $request->validated();
 
-        if ($request->hasFile('attachment')) {
-            $data['attachment'] = $request->file('attachment')->store('enquiries', 'private');
-        }
-
         $enquiry = Enquiry::create($data);
+
+        // Saved before the upload so the stored name can carry the enquiry
+        // reference, which makes attachments recognisable in the triage list
+        // instead of showing an opaque hash.
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+
+            $enquiry->update([
+                'attachment' => $file->storeAs(
+                    'enquiries',
+                    $enquiry->reference.'-'.self::safeAttachmentName($file),
+                    'private'
+                ),
+            ]);
+        }
 
         $notifier->enquirySubmitted($enquiry);
 
@@ -68,5 +89,30 @@ class ContactController extends Controller
         $enquiry = Enquiry::where('reference', strtoupper($reference))->firstOrFail();
 
         return view('public.contact.confirmation', ['enquiry' => $enquiry]);
+    }
+
+    /**
+     * Keep something recognisable of the visitor's filename.
+     *
+     * Laravel's store() hashes names, which makes the triage list and the
+     * download show a hash. The extension is taken from the original name but is
+     * constrained to the allow-list the form request already enforced, and the
+     * path is stripped, so a crafted name cannot escape the directory.
+     */
+    private static function safeAttachmentName(UploadedFile $file): string
+    {
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        if (! in_array($extension, self::ALLOWED_ATTACHMENT_EXTENSIONS, true)) {
+            $extension = 'bin';
+        }
+
+        $base = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+
+        if ($base === '') {
+            $base = 'attachment';
+        }
+
+        return Str::limit($base, 60, '').'.'.$extension;
     }
 }

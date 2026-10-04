@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\AuditLog;
+use BackedEnum;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
@@ -19,22 +21,22 @@ class AuditLogger
     /**
      * Record an administrative action.
      *
-     * @param string $action      dotted action key, e.g. 'login', 'enquiry.updated'
-     * @param string $description human-readable one-liner for the viewer
-     * @param array  $properties  context payload ('changes' diff, extra data)
-     * @param Model|null $subject the audited record (polymorphic)
+     * @param  string  $action  dotted action key, e.g. 'login', 'enquiry.updated'
+     * @param  string  $description  human-readable one-liner for the viewer
+     * @param  array  $properties  context payload ('changes' diff, extra data)
+     * @param  Model|null  $subject  the audited record (polymorphic)
      */
     public function log(string $action, string $description, array $properties = [], ?Model $subject = null): void
     {
         AuditLog::create([
-            'user_id'      => Auth::id(),
-            'action'       => $action,
-            'description'  => $description,
+            'user_id' => Auth::id(),
+            'action' => $action,
+            'description' => $description,
             'subject_type' => $subject?->getMorphClass(),
-            'subject_id'   => $subject?->getKey(),
-            'properties'   => $properties ?: null,
-            'ip_address'   => Request::ip(),
-            'user_agent'   => substr((string) Request::userAgent(), 0, 500),
+            'subject_id' => $subject?->getKey(),
+            'properties' => $properties ?: null,
+            'ip_address' => Request::ip(),
+            'user_agent' => substr((string) Request::userAgent(), 0, 500),
         ]);
     }
 
@@ -53,6 +55,13 @@ class AuditLogger
 
             $old = $oldAttributes[$key] ?? null;
 
+            // getChanges()/getOriginal() hand back *cast* values, so an enum
+            // attribute arrives as an object. Normalise both sides to scalars
+            // before comparing or rendering, otherwise the diff is unreadable
+            // and string interpolation throws.
+            $old = $this->normalise($old);
+            $new = $this->normalise($new);
+
             if ($old !== $new) {
                 $changes[$key] = ['old' => $old, 'new' => $new];
             }
@@ -68,10 +77,23 @@ class AuditLogger
             ->implode('; ');
 
         $this->log(
-            action: $actionPrefix . '.updated',
+            action: $actionPrefix.'.updated',
             description: sprintf('%s #%s updated — %s', $label, $model->getKey(), $summary),
             properties: ['changes' => $changes],
             subject: $model,
         );
+    }
+
+    /**
+     * Reduce a cast attribute to a storable, printable scalar.
+     */
+    private function normalise(mixed $value): mixed
+    {
+        return match (true) {
+            $value instanceof BackedEnum => $value->value,
+            $value instanceof DateTimeInterface => $value->format('Y-m-d H:i:s'),
+            $value instanceof \Stringable => (string) $value,
+            default => $value,
+        };
     }
 }

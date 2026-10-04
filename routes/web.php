@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EnquiryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\BusinessController;
 use App\Http\Controllers\Public\ContactController;
@@ -117,6 +118,24 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->middleware('permission:view-admin-dashboard')
         ->name('dashboard');
+
+    // Module 4 — Enquiry triage queue (PRD §21, route listed in §31).
+    // Viewing is one permission; progression, ownership and closure are separate
+    // so the screens and UpdateEnquiryRequest can gate them independently (§23).
+    Route::get('/enquiries', [EnquiryController::class, 'index'])
+        ->middleware('permission:view-enquiries')
+        ->name('enquiries.index');
+    Route::get('/enquiries/{enquiry}', [EnquiryController::class, 'show'])
+        ->middleware('permission:view-enquiries')
+        ->name('enquiries.show');
+    Route::get('/enquiries/{enquiry}/attachment', [EnquiryController::class, 'downloadAttachment'])
+        ->middleware('permission:view-enquiries')
+        ->name('enquiries.attachment');
+    // Triage writes are authorised per field by UpdateEnquiryRequest, so the
+    // route only guards visibility of the enquiry itself.
+    Route::patch('/enquiries/{enquiry}', [EnquiryController::class, 'update'])
+        ->middleware('permission:view-enquiries')
+        ->name('enquiries.update');
 
     // Module 10 — Audit log viewer (read-only, PRD §27/§31/§32).
     Route::get('/audit-logs', [AuditLogController::class, 'index'])

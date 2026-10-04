@@ -2,7 +2,10 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Enums\EnquiryStatus;
+use App\Enums\Priority;
 use App\Models\AuditLog;
+use App\Models\Enquiry;
 use App\Models\User;
 use App\Support\Rbac;
 use Database\Seeders\RolePermissionSeeder;
@@ -138,5 +141,41 @@ class AuditLogViewerTest extends TestCase
         $this->actingAs($user)
             ->get(route('admin.audit-logs.show', $log))
             ->assertForbidden();
+    }
+
+    /**
+     * The diff is built from getChanges()/getOriginal(), which return *cast*
+     * values — so an enum attribute arrives as an object. Rendering it used to
+     * throw, which meant the first real triage update of an enum-cast model
+     * (status, priority) returned a 500.
+     */
+    public function test_update_diff_flattens_enum_and_date_casts_to_scalars(): void
+    {
+        $this->seedRbac();
+
+        $enquiry = Enquiry::factory()->create([
+            'status' => EnquiryStatus::New,
+            'priority' => Priority::Normal,
+        ]);
+
+        $enquiry->update([
+            'status' => EnquiryStatus::Resolved,
+            'priority' => Priority::Urgent,
+        ]);
+
+        $log = AuditLog::query()->where('action', 'enquiry.updated')->sole();
+
+        $this->assertSame([
+            'status' => ['old' => 'new', 'new' => 'resolved'],
+            'priority' => ['old' => 'normal', 'new' => 'urgent'],
+        ], $log->properties['changes']);
+
+        $this->assertStringContainsString('status: "new" → "resolved"', $log->description);
+
+        $this->actingAs($this->superAdmin())
+            ->get(route('admin.audit-logs.show', $log))
+            ->assertOk()
+            ->assertSee('resolved')
+            ->assertSee('urgent');
     }
 }
