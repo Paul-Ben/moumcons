@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BusinessDivision;
+use App\Models\Project;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -39,6 +40,14 @@ class HomeController extends Controller
                 ->ordered()
                 ->get(),
             'activeCount' => BusinessDivision::query()->publiclyVisible()->count(),
+            // PRD §8 section 8 — hidden on the page until projects are published.
+            'featuredProjects' => Project::query()
+                ->published()
+                ->featured()
+                ->with('division:id,name,slug')
+                ->ordered()
+                ->take(3)
+                ->get(),
         ]);
     }
 }

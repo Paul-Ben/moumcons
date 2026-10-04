@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\BusinessDivisionController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EnquiryController;
 use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\ProjectController as AdminProjectController;
 use App\Http\Controllers\Admin\QuoteRequestController;
 use App\Http\Controllers\Admin\ServiceCategoryController;
 use App\Http\Controllers\Admin\ServiceController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Admin\ServiceRequestController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\BusinessController;
 use App\Http\Controllers\Public\ContactController;
+use App\Http\Controllers\Public\ProjectController;
 use App\Http\Controllers\Public\ServiceCatalogController;
 use App\Http\Controllers\Requests\RequestQuoteController;
 use App\Http\Controllers\Requests\RequestServiceController;
@@ -34,6 +36,10 @@ Route::get('/businesses/{division:slug}', [BusinessController::class, 'show'])
 // Module 6 — Cross-division Services Catalogue (PRD §11).
 Route::get('/services', [ServiceCatalogController::class, 'index'])->name('services.index');
 Route::get('/services/{service:slug}', [ServiceCatalogController::class, 'show'])->name('services.show');
+
+// M4 — Project portfolio (PRD §14).
+Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+Route::get('/projects/{project:slug}', [ProjectController::class, 'show'])->name('projects.show');
 
 // Module 7 — Customer engagement: service + quote requests, public tracking
 // (PRD §12/§13). Forms are public; protected by rate limiting + honeypot.
@@ -64,7 +70,6 @@ foreach ([
     'about.mission' => '/about/mission-vision',
     'about.leadership' => '/about/leadership',
     'about.university' => '/about/university-relationship',
-    'projects.index' => '/projects',
     'training.index' => '/training',
     'news.index' => '/news',
     'careers.index' => '/careers',
@@ -176,6 +181,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::resource('service-categories', ServiceCategoryController::class)
             ->only(['index', 'store', 'update', 'destroy'])
             ->parameters(['service-categories' => 'category']);
+    });
+
+    // M4 — Projects (PRD §14).
+    Route::middleware('permission:view-projects')->group(function () {
+        Route::resource('projects', AdminProjectController::class)->except('show');
     });
 
     // M2 — Media library (PRD §19/§22). Per-action checks live in MediaPolicy;

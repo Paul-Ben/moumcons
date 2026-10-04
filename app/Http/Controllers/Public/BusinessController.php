@@ -77,6 +77,13 @@ class BusinessController extends Controller
                 ->orderBy('sort_order'),
         ]);
 
+        $projects = $division->projects()
+            ->published()
+            ->orderByDesc('featured')
+            ->ordered()
+            ->take(4)
+            ->get();
+
         $related = BusinessDivision::query()
             ->publiclyVisible()
             ->whereKeyNot($division->id)
@@ -88,6 +95,7 @@ class BusinessController extends Controller
         return view('public.businesses.show', [
             'division' => $division,
             'related' => $related,
+            'projects' => $projects,
         ]);
     }
 }

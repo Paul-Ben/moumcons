@@ -54,71 +54,82 @@ document.addEventListener('trix-attachment-add', async (event) => {
     }
 });
 
-/* ---------------------------------------------------------- Media picker */
+/* ---------------------------------------------------- Media library browser */
+
+// Shared by the single-image picker and the gallery picker: loads, searches
+// and pages through the library, and uploads new images into it.
+const libraryBrowser = ({ libraryUrl, uploadUrl }) => ({
+    open: false,
+    library: [],
+    next: null,
+    query: '',
+    loading: false,
+    uploading: false,
+    error: '',
+
+    async show() {
+        this.open = true;
+        if (this.library.length === 0) {
+            await this.search();
+        }
+    },
+
+    async fetchPage(url) {
+        this.loading = true;
+        this.error = '';
+        try {
+            const response = await fetch(url, { headers: { Accept: 'application/json' } });
+            if (!response.ok) throw new Error('Could not load the media library.');
+            return await response.json();
+        } catch (error) {
+            this.error = error.message;
+            return { data: [], next: null };
+        } finally {
+            this.loading = false;
+        }
+    },
+
+    async search() {
+        const url = new URL(libraryUrl, window.location.origin);
+        if (this.query) url.searchParams.set('q', this.query);
+        const page = await this.fetchPage(url);
+        this.library = page.data;
+        this.next = page.next;
+    },
+
+    async more() {
+        if (!this.next) return;
+        const page = await this.fetchPage(this.next);
+        this.library.push(...page.data);
+        this.next = page.next;
+    },
+
+    async upload(event) {
+        const files = event.target.files;
+        if (!files.length || !uploadUrl) return;
+        this.uploading = true;
+        this.error = '';
+        try {
+            const created = await uploadImages(uploadUrl, files);
+            this.library.unshift(...created);
+            created.forEach((item) => this.choose(item));
+        } catch (error) {
+            this.error = error.message;
+        } finally {
+            this.uploading = false;
+            event.target.value = '';
+        }
+    },
+});
 
 document.addEventListener('alpine:init', () => {
+    // One image field: stores the chosen image's URL.
     window.Alpine.data('mediaPicker', ({ value = '', libraryUrl, uploadUrl }) => ({
+        ...libraryBrowser({ libraryUrl, uploadUrl }),
         value,
-        open: false,
-        items: [],
-        next: null,
-        query: '',
-        loading: false,
-        uploading: false,
-        error: '',
 
-        async show() {
-            this.open = true;
-            if (this.items.length === 0) {
-                await this.search();
-            }
-        },
-
-        async fetchPage(url) {
-            this.loading = true;
-            this.error = '';
-            try {
-                const response = await fetch(url, { headers: { Accept: 'application/json' } });
-                if (!response.ok) throw new Error('Could not load the media library.');
-                return await response.json();
-            } catch (error) {
-                this.error = error.message;
-                return { data: [], next: null };
-            } finally {
-                this.loading = false;
-            }
-        },
-
-        async search() {
-            const url = new URL(libraryUrl, window.location.origin);
-            if (this.query) url.searchParams.set('q', this.query);
-            const page = await this.fetchPage(url);
-            this.items = page.data;
-            this.next = page.next;
-        },
-
-        async more() {
-            if (!this.next) return;
-            const page = await this.fetchPage(this.next);
-            this.items.push(...page.data);
-            this.next = page.next;
-        },
-
-        async upload(event) {
-            const files = event.target.files;
-            if (!files.length) return;
-            this.uploading = true;
-            this.error = '';
-            try {
-                const created = await uploadImages(uploadUrl, files);
-                this.items.unshift(...created);
-                this.choose(created[0]);
-            } catch (error) {
-                this.error = error.message;
-            } finally {
-                this.uploading = false;
-                event.target.value = '';
-            }
+        isSelected(item) {
+            return this.value === item.url;
         },
 
         choose(item) {
@@ -128,6 +139,32 @@ document.addEventListener('alpine:init', () => {
 
         clear() {
             this.value = '';
+        },
+    }));
+
+    // Ordered list of images with captions (project and gallery albums).
+    window.Alpine.data('galleryPicker', ({ items = [], libraryUrl, uploadUrl }) => ({
+        ...libraryBrowser({ libraryUrl, uploadUrl }),
+        items: items.map((item) => ({ image: item.image, caption: item.caption ?? '' })),
+
+        isSelected(item) {
+            return this.items.some((row) => row.image === item.url);
+        },
+
+        choose(item) {
+            if (!this.isSelected(item)) {
+                this.items.push({ image: item.url, caption: item.alt ?? '' });
+            }
+        },
+
+        remove(index) {
+            this.items.splice(index, 1);
+        },
+
+        move(index, delta) {
+            const target = index + delta;
+            if (target < 0 || target >= this.items.length) return;
+            [this.items[index], this.items[target]] = [this.items[target], this.items[index]];
         },
     }));
 });

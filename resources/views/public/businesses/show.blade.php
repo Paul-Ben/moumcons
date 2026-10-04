@@ -105,6 +105,21 @@
                     @endif
                 </div>
 
+                {{-- Projects (PRD §10 division page section 6) --}}
+                @if ($projects->isNotEmpty())
+                    <div>
+                        <div class="flex items-end justify-between gap-4 mb-6">
+                            <h2 class="font-display text-2xl font-bold text-moaum-charcoal">Projects</h2>
+                            <a href="{{ route('projects.index', ['division' => $division->slug]) }}" class="text-sm font-semibold text-moaum-blue hover:underline">All projects</a>
+                        </div>
+                        <div class="grid sm:grid-cols-2 gap-6">
+                            @foreach ($projects as $project)
+                                <x-project-card :project="$project" />
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 {{-- Related divisions --}}
                 @if ($related->count())
                     <div>

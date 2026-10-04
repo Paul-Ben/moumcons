@@ -40,6 +40,11 @@ final class AdminNav
                 'permission' => 'view-services',
             ],
             [
+                'label' => 'Projects', 'icon' => 'hard-hat',
+                'route' => 'admin.projects.index', 'active' => 'admin.projects.*',
+                'permission' => 'view-projects',
+            ],
+            [
                 'label' => 'Enquiries', 'icon' => 'mail',
                 'route' => 'admin.enquiries.index', 'active' => 'admin.enquiries.*',
                 'permission' => 'view-enquiries',

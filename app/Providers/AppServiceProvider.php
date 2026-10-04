@@ -6,6 +6,7 @@ use App\Models\BusinessDivision;
 use App\Models\DivisionCapability;
 use App\Models\Enquiry;
 use App\Models\Media;
+use App\Models\Project;
 use App\Models\QuoteRequest;
 use App\Models\Service;
 use App\Models\ServiceCategory;
@@ -47,7 +48,7 @@ class AppServiceProvider extends ServiceProvider
         QuoteRequest::observe(AuditableTriageObserver::class);
 
         // CMS content: every admin create/edit/delete is diffed into the log.
-        foreach ([Media::class, BusinessDivision::class, DivisionCapability::class, Service::class, ServiceCategory::class] as $content) {
+        foreach ([Media::class, BusinessDivision::class, DivisionCapability::class, Service::class, ServiceCategory::class, Project::class] as $content) {
             $content::observe(AuditableContentObserver::class);
         }
 

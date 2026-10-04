@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\BusinessDivision;
 use App\Models\Enquiry;
+use App\Models\Project;
 use App\Models\QuoteRequest;
 use App\Models\Service;
 use App\Models\ServiceRequest;
@@ -53,7 +54,6 @@ class DashboardController extends Controller
                 ->limit(8)
                 ->get(),
             'pendingModules' => [
-                ['label' => 'Projects', 'module' => 'Module 7'],
                 ['label' => 'News articles', 'module' => 'Module 8'],
                 ['label' => 'Training programmes', 'module' => 'Module 9'],
             ],
@@ -113,6 +113,13 @@ class DashboardController extends Controller
                 'hint' => 'of '.Service::query()->count().' total',
                 'icon' => 'check-circle',
                 'tone' => 'green',
+            ],
+            [
+                'label' => 'Projects',
+                'value' => Project::query()->count(),
+                'hint' => Project::query()->published()->count().' published',
+                'icon' => 'hard-hat',
+                'tone' => 'red',
             ],
             [
                 'label' => 'Staff users',

@@ -107,12 +107,13 @@ class BusinessDivisionController extends Controller
         Gate::authorize('delete', $division);
 
         $inUse = $division->services()->exists()
+            || $division->projects()->exists()
             || $division->serviceRequests()->exists()
             || $division->quoteRequests()->exists()
             || $division->enquiries()->exists();
 
         if ($inUse) {
-            return back()->with('error', "\"{$division->name}\" has services or customer requests, so it cannot be deleted. Set its status to Archived instead.");
+            return back()->with('error', "\"{$division->name}\" has services, projects or customer requests, so it cannot be deleted. Set its status to Archived instead.");
         }
 
         $division->delete();
