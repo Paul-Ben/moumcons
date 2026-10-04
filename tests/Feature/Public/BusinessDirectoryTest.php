@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Public;
 
+use App\Enums\DivisionStatus;
+use App\Enums\ServiceStatus;
 use App\Models\BusinessDivision;
 use App\Models\Service;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,8 +21,8 @@ class BusinessDirectoryTest extends TestCase
 
     public function test_directory_lists_public_divisions(): void
     {
-        $visible = $this->division(['status' => \App\Enums\DivisionStatus::Active, 'name' => 'Alpha Division']);
-        $hidden = $this->division(['status' => \App\Enums\DivisionStatus::Archived, 'name' => 'Secret Division']);
+        $visible = $this->division(['status' => DivisionStatus::Active, 'name' => 'Alpha Division']);
+        $hidden = $this->division(['status' => DivisionStatus::Archived, 'name' => 'Secret Division']);
 
         $response = $this->get(route('businesses.index'));
         $response->assertOk()
@@ -30,24 +32,29 @@ class BusinessDirectoryTest extends TestCase
 
     public function test_directory_search_filters_by_name(): void
     {
-        $this->division(['status' => \App\Enums\DivisionStatus::Active, 'name' => 'Printing Press']);
-        $this->division(['status' => \App\Enums\DivisionStatus::Active, 'name' => 'Catering Hub']);
+        $this->division(['status' => DivisionStatus::Active, 'name' => 'Printing Press']);
+        $this->division(['status' => DivisionStatus::Active, 'name' => 'Catering Hub']);
 
-        $this->get(route('businesses.index', ['q' => 'printing']))
-            ->assertOk()
-            ->assertSee('Printing Press')
-            ->assertDontSee('Catering Hub');
+        // Assert on the paginated grid rather than the whole page: the site
+        // footer deliberately lists divisions independently of the search.
+        $response = $this->get(route('businesses.index', ['q' => 'printing']));
+
+        $response->assertOk()->assertSee('Printing Press');
+        $this->assertSame(
+            ['Printing Press'],
+            $response->viewData('divisions')->pluck('name')->all()
+        );
     }
 
     public function test_detail_page_renders_by_slug(): void
     {
         $division = $this->division([
-            'status' => \App\Enums\DivisionStatus::Active,
+            'status' => DivisionStatus::Active,
             'slug' => 'test-division',
         ]);
         Service::factory()->create([
             'business_division_id' => $division->id,
-            'status' => \App\Enums\ServiceStatus::Active,
+            'status' => ServiceStatus::Active,
             'name' => 'Visible Service',
         ]);
 
@@ -59,7 +66,7 @@ class BusinessDirectoryTest extends TestCase
 
     public function test_draft_division_detail_returns_404(): void
     {
-        $division = $this->division(['status' => \App\Enums\DivisionStatus::Archived]);
+        $division = $this->division(['status' => DivisionStatus::Archived]);
 
         $this->get(route('businesses.show', $division))->assertNotFound();
     }

@@ -6,14 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\QuoteRequest;
 use App\Models\ServiceRequest;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 /** PRD §12/§13 — public status tracking by reference + email (no account needed). */
 class TrackRequestController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, ?string $reference = null): View
     {
-        $reference = trim((string) $request->query('reference', ''));
+        $reference = strtoupper(trim($reference ?? (string) $request->query('reference', ''))) ?: null;
 
         return view('requests.track', [
             'reference' => $reference,
@@ -22,7 +23,7 @@ class TrackRequestController extends Controller
         ]);
     }
 
-    public function show(Request $request): View
+    public function show(Request $request): View|Response
     {
         $validated = $request->validate([
             'reference' => ['required', 'string', 'max:20'],
@@ -34,12 +35,14 @@ class TrackRequestController extends Controller
         $service = ServiceRequest::findByPublicReference($ref, $validated['email']);
         $quote = $service ? null : QuoteRequest::findByPublicReference($ref, $validated['email']);
 
-        if (!$service && !$quote) {
-            return view('requests.track', [
+        if (! $service && ! $quote) {
+            // A View has no withStatusCode(); __call() would silently treat it
+            // as ->with('statusCode', ...) and answer 200.
+            return response(view('requests.track', [
                 'reference' => $ref,
                 'result' => null,
                 'error' => 'No request found for that reference number and email combination.',
-            ])->withStatusCode(422);
+            ]), 422);
         }
 
         return view('requests.track', [

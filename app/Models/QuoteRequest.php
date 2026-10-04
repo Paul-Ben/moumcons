@@ -23,6 +23,12 @@ class QuoteRequest extends Model
         'status', 'assigned_to', 'internal_notes',
     ];
 
+    /** DB default + safety net so 'new' (a ServiceRequest value) is never used. */
+    protected function attributes(): array
+    {
+        return ['status' => QuoteStatus::Requested->value];
+    }
+
     protected function casts(): array
     {
         return [

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Public;
 
+use App\Enums\DivisionStatus;
+use App\Enums\ServiceStatus;
 use App\Http\Controllers\Controller;
 use App\Models\BusinessDivision;
 use Illuminate\Http\Request;
@@ -20,7 +22,7 @@ class BusinessController extends Controller
     {
         $query = BusinessDivision::query()
             ->publiclyVisible()
-            ->withCount(['services as active_services_count' => fn ($q) => $q->where('status', \App\Enums\ServiceStatus::Active)])
+            ->withCount(['services as active_services_count' => fn ($q) => $q->where('status', ServiceStatus::Active)])
             ->ordered();
 
         // Category chips (distinct categories across visible divisions).
@@ -37,7 +39,7 @@ class BusinessController extends Controller
         }
 
         if ($search = $request->filled('q') ? trim($request->string('q')->toString()) : null) {
-            $like = '%' . str_replace(['%', '_'], ['\%', '\_'], $search) . '%';
+            $like = '%'.str_replace(['%', '_'], ['\%', '\_'], $search).'%';
             $query->where(function ($q) use ($like) {
                 $q->where('name', 'like', $like)
                     ->orWhere('short_description', 'like', $like);
@@ -64,14 +66,14 @@ class BusinessController extends Controller
     public function show(Request $request, BusinessDivision $division): View
     {
         abort_unless(
-            in_array($division->status, [\App\Enums\DivisionStatus::Active, \App\Enums\DivisionStatus::ComingSoon], true),
+            in_array($division->status, [DivisionStatus::Active, DivisionStatus::ComingSoon], true),
             404
         );
 
         $division->load([
             'capabilities' => fn ($q) => $q->orderBy('sort_order'),
-            'services' => fn ($q) => $q->where('status', \App\Enums\ServiceStatus::Active)
-                ->orderBy('featured', desc: true)
+            'services' => fn ($q) => $q->where('status', ServiceStatus::Active)
+                ->orderByDesc('featured')
                 ->orderBy('sort_order'),
         ]);
 

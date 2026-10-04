@@ -7,12 +7,9 @@ use App\Http\Requests\StoreQuoteRequest;
 use App\Models\BusinessDivision;
 use App\Models\QuoteRequest;
 use App\Models\Service;
-use App\Models\User;
-use App\Notifications\AdminNewRequestAlert;
-use App\Notifications\RequestSubmitted;
+use App\Services\RequestNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 /** PRD §13 — Request-a-Quote (Flow B): form → confirmation → tracking. */
@@ -34,10 +31,9 @@ class RequestQuoteController extends Controller
         ]);
     }
 
-    public function store(StoreQuoteRequest $request): RedirectResponse
+    public function store(StoreQuoteRequest $request, RequestNotifier $notifier): RedirectResponse
     {
         $data = $request->validated();
-        unset($data['website']);
 
         if ($request->hasFile('attachment')) {
             $data['attachment'] = $request->file('attachment')->store('quote-requests', 'private');
@@ -45,13 +41,7 @@ class RequestQuoteController extends Controller
 
         $quote = QuoteRequest::create($data);
 
-        Mail::to($quote->email)->queue(
-            new RequestSubmitted('quote', $quote->reference, $quote->project_title)
-        );
-
-        User::permission('manage-requests')->each(fn (User $user) =>
-            $user->notify(new AdminNewRequestAlert('quote', $quote->reference, $quote->name, $quote->division?->name ?? '—'))
-        );
+        $notifier->quoteSubmitted($quote);
 
         return redirect()
             ->route('requests.quote.confirmation', $quote->reference)

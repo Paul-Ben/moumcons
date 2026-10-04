@@ -7,12 +7,9 @@ use App\Http\Requests\StoreServiceRequest;
 use App\Models\BusinessDivision;
 use App\Models\Service;
 use App\Models\ServiceRequest;
-use App\Models\User;
-use App\Notifications\AdminNewRequestAlert;
-use App\Notifications\RequestSubmitted;
+use App\Services\RequestNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 /** PRD §12 — Request-a-Service (Flow A): form → confirmation → tracking. */
@@ -34,10 +31,9 @@ class RequestServiceController extends Controller
         ]);
     }
 
-    public function store(StoreServiceRequest $request): RedirectResponse
+    public function store(StoreServiceRequest $request, RequestNotifier $notifier): RedirectResponse
     {
         $data = $request->validated();
-        unset($data['website']);
 
         if ($request->hasFile('attachment')) {
             $data['attachment'] = $request->file('attachment')->store('service-requests', 'private');
@@ -45,15 +41,7 @@ class RequestServiceController extends Controller
 
         $serviceRequest = ServiceRequest::create($data);
 
-        // Customer receipt (queued mail).
-        Mail::to($serviceRequest->email)->queue(
-            new RequestSubmitted('service', $serviceRequest->reference, $serviceRequest->service?->name ?? $serviceRequest->division?->name ?? 'MOAUM services')
-        );
-
-        // Alert triage users (role: super_admin, business_manager, or anyone with manage-requests).
-        User::permission('manage-requests')->each(fn (User $user) =>
-            $user->notify(new AdminNewRequestAlert('service', $serviceRequest->reference, $serviceRequest->name, $serviceRequest->division?->name ?? '—'))
-        );
+        $notifier->serviceSubmitted($serviceRequest);
 
         return redirect()
             ->route('requests.service.confirmation', $serviceRequest->reference)

@@ -47,7 +47,11 @@ class Setting extends Model
         }
 
         // Fallback map: contact.phone => config('moaum.company.phone'), etc.
-        return config(str_starts_with($key, 'contact.') ? 'moaum.company.' . substr($key, strlen('contact.')) : null, $default);
+        if (str_starts_with($key, 'contact.')) {
+            return config('moaum.company.' . substr($key, strlen('contact.')), $default);
+        }
+
+        return $default;
     }
 
     /** Cached lookup of a setting's declared type (text|textarea|image|bool|json). */

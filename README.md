@@ -1,58 +1,81 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# MOAUM Consultancy Services
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Corporate website + admin panel for MOAUM Consultancy Services Limited — the business and investment arm of Rev. Fr. Moses Orshio Adasu University, Makurdi.
 
-## About Laravel
+Built with **Laravel 13** (PHP ^8.3), **Blade + Alpine.js + Tailwind CSS v4** (Vite), **SQLite** by default, and **spatie/laravel-permission** for RBAC. Full requirements live in `prototype-docs/MOAUM_PRD_SRD.md`; the visual spec and pixel prototypes are in `prototype-docs/`.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Prerequisites
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP 8.3+ with the `sqlite` extension (no database server required — SQLite is used by default)
+- Composer
+- Node.js 20.19+ (Vite 8) and npm
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Setup
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer setup
+php artisan db:seed
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+`composer setup` installs PHP dependencies, copies `.env` from `.env.example`, generates the app key, runs migrations, and builds the frontend assets.
 
-## Contributing
+**Note:** `composer setup` does *not* seed the database. Run `php artisan db:seed` afterwards — it creates roles/permissions, the local admin account, and sample content (16 business divisions, service categories, services, site settings). The seeder is idempotent and safe to re-run.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Running the app
 
-## Code of Conduct
+```bash
+composer dev
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Starts the app on <http://localhost:8000> with the Vite dev server and log tailing in one process.
 
-## Security Vulnerabilities
+Individual commands, if you prefer:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+php artisan serve        # web server
+npm run dev              # Vite (hot reload)
+./vendor/bin/pail        # log tailing
+```
 
-## License
+## Local logins
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+| Role | Email | Password |
+| --- | --- | --- |
+| Super Administrator | `admin@moaum.test` | `ChangeMe!2026` |
+| Customer (local only) | `test@example.com` | `ChangeMe!2026` |
+
+Overridable via `MOAUM_ADMIN_EMAIL` / `MOAUM_ADMIN_PASSWORD` in `.env`.
+
+## Testing
+
+```bash
+composer test                       # full suite
+php artisan test --filter=BusinessDirectoryTest
+php artisan test --filter=AuthenticationTest::test_users_can_login_with_valid_credentials
+```
+
+Tests run PHPUnit against in-memory SQLite (`RefreshDatabase`) — no external services needed.
+
+## Code style
+
+```bash
+vendor/bin/pint
+```
+
+## Environment notes
+
+- SQLite database file: `database/database.sqlite` (created automatically by migrations). Sessions, cache, and queue also use the database; tests override these to in-memory/array drivers in `phpunit.xml`.
+- Mail uses the `log` driver in dev — emails are written to `storage/logs/laravel.log`, not sent.
+- If you enable real mail or switch to MySQL, update `.env` accordingly; migrations are written to stay DB-agnostic.
+- `.npmrc` sets `ignore-scripts=true` so npm postinstall scripts never run; keep this behaviour in any `npm install` you run manually.
+
+## Repository map
+
+- `app/Http/Controllers/` — `Public/` (site pages), `Requests/` (service/quote requests, tracking), `Auth/`, `Admin/`
+- `app/Models/` + `app/Enums/` — domain models with status/privacy enums
+- `app/Support/Rbac.php` — single source of truth for roles and permissions (PRD §23); authorize with permissions, never role names
+- `app/Services/AuditLogger.php` + `app/Observers/AuditableTriageObserver.php` — audit trail for admin-affecting operations
+- `config/moaum.php` — company details + navigation structure (source for header/footer until the Settings admin UI lands)
+- `database/seeders/` — `RolePermissionSeeder`, `AdminUserSeeder`, `ContentSeeder` (sample divisions/services/settings)
+- `resources/views/` — `public/`, `auth/`, `admin/`, shared `components/`; design tokens and shared component classes (`.btn-primary`, `.card`, `.input`, …) live in `resources/css/app.css`
+- `prototype-docs/` — PRD/SRD, design system, and HTML prototypes; `docs/` mirrors the markdown docs

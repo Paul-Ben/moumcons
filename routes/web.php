@@ -4,6 +4,9 @@ use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\BusinessController;
 use App\Http\Controllers\Public\ServiceCatalogController;
+use App\Http\Controllers\Requests\RequestQuoteController;
+use App\Http\Controllers\Requests\RequestServiceController;
+use App\Http\Controllers\Requests\TrackRequestController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,6 +25,28 @@ Route::get('/businesses/{division:slug}', [BusinessController::class, 'show'])
 // Module 6 — Cross-division Services Catalogue (PRD §11).
 Route::get('/services', [ServiceCatalogController::class, 'index'])->name('services.index');
 Route::get('/services/{service:slug}', [ServiceCatalogController::class, 'show'])->name('services.show');
+
+// Module 7 — Customer engagement: service + quote requests, public tracking
+// (PRD §12/§13). Forms are public; protected by rate limiting + honeypot.
+Route::get('/request-service', [RequestServiceController::class, 'create'])->name('requests.service.create');
+Route::post('/request-service', [RequestServiceController::class, 'store'])
+    ->middleware('throttle:6,1')
+    ->name('requests.service.store');
+Route::get('/request-service/{reference}', [RequestServiceController::class, 'confirmation'])
+    ->name('requests.service.confirmation');
+
+Route::get('/request-quote', [RequestQuoteController::class, 'create'])->name('requests.quote.create');
+Route::post('/request-quote', [RequestQuoteController::class, 'store'])
+    ->middleware('throttle:6,1')
+    ->name('requests.quote.store');
+Route::get('/request-quote/{reference}', [RequestQuoteController::class, 'confirmation'])
+    ->name('requests.quote.confirmation');
+
+// PRD §12/§13 — status tracking by reference + email (no account needed).
+Route::get('/track-request/{reference?}', [TrackRequestController::class, 'index'])->name('requests.track');
+Route::post('/track-request', [TrackRequestController::class, 'show'])
+    ->middleware('throttle:10,1')
+    ->name('requests.track.lookup');
 
 // Placeholder routes referenced by config('moaum.nav') so the nav can be
 // wired up progressively in later modules without broken links.
