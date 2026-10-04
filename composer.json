@@ -10,9 +10,11 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "intervention/image": "^3.0",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0",
-        "spatie/laravel-permission": "^8.3"
+        "spatie/laravel-permission": "^8.3",
+        "symfony/html-sanitizer": "^7.4"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -42,6 +44,7 @@
             "@php artisan key:generate",
             "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan migrate --force",
+            "@php artisan storage:link --force",
             "npm install --ignore-scripts",
             "npm run build"
         ],

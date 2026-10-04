@@ -56,6 +56,11 @@ final class AdminNav
                 'count' => 'quotes',
             ],
             [
+                'label' => 'Media Library', 'icon' => 'image',
+                'route' => 'admin.media.index', 'active' => 'admin.media.*',
+                'permission' => 'view-media',
+            ],
+            [
                 'label' => 'Audit Logs', 'icon' => 'shield-check',
                 'route' => 'admin.audit-logs.index', 'active' => 'admin.audit-logs.*',
                 'permission' => 'view-audit-logs',

@@ -3,9 +3,11 @@
 namespace App\Providers;
 
 use App\Models\Enquiry;
+use App\Models\Media;
 use App\Models\QuoteRequest;
 use App\Models\ServiceRequest;
 use App\Models\User;
+use App\Observers\AuditableContentObserver;
 use App\Observers\AuditableTriageObserver;
 use App\Services\AuditLogger;
 use App\Support\AdminNav;
@@ -39,6 +41,11 @@ class AppServiceProvider extends ServiceProvider
         Enquiry::observe(AuditableTriageObserver::class);
         ServiceRequest::observe(AuditableTriageObserver::class);
         QuoteRequest::observe(AuditableTriageObserver::class);
+
+        // CMS content: every admin create/edit/delete is diffed into the log.
+        foreach ([Media::class] as $content) {
+            $content::observe(AuditableContentObserver::class);
+        }
 
         $audit = fn () => $this->app->make(AuditLogger::class);
 

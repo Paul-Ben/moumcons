@@ -7,7 +7,9 @@
          layout is a component, so @yield('title') would never receive it. --}}
     <title>{{ $title ?? 'Admin' }} &middot; MOAUM Admin</title>
     <meta name="robots" content="noindex, nofollow">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    {{-- admin.js first: it registers Alpine components before app.js starts Alpine. --}}
+    @vite(['resources/css/app.css', 'resources/js/admin.js', 'resources/js/app.js'])
     @stack('head')
 </head>
 {{-- Admin shell — faithful to prototype-docs/admin.html (charcoal sidebar, white topbar) --}}

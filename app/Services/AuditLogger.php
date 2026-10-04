@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Request;
  */
 class AuditLogger
 {
+    private const MAX_VALUE_LENGTH = 300;
+
     /**
      * Record an administrative action.
      *
@@ -63,7 +65,7 @@ class AuditLogger
             $new = $this->normalise($new);
 
             if ($old !== $new) {
-                $changes[$key] = ['old' => $old, 'new' => $new];
+                $changes[$key] = ['old' => $this->clip($old), 'new' => $this->clip($new)];
             }
         }
 
@@ -95,5 +97,16 @@ class AuditLogger
             $value instanceof \Stringable => (string) $value,
             default => $value,
         };
+    }
+
+    /**
+     * Long text (rich-text bodies) is clipped so one edit cannot bloat the log;
+     * the diff only needs to show that, and roughly how, it changed.
+     */
+    private function clip(mixed $value): mixed
+    {
+        return is_string($value) && mb_strlen($value) > self::MAX_VALUE_LENGTH
+            ? mb_substr($value, 0, self::MAX_VALUE_LENGTH).'…'
+            : $value;
     }
 }

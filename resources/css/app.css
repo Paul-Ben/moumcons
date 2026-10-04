@@ -120,6 +120,23 @@
         @apply text-moaum-red font-semibold text-sm uppercase tracking-wide;
     }
 
+    /* CMS rich text (Trix output) — used by the editor and on public pages so
+       what editors see is what visitors get. */
+    .prose-moaum {
+        @apply text-slate-700 leading-relaxed;
+    }
+    .prose-moaum > * + * { @apply mt-4; }
+    .prose-moaum h1 { @apply font-display text-2xl font-bold text-moaum-charcoal mt-8; }
+    .prose-moaum h2 { @apply font-display text-xl font-bold text-moaum-charcoal mt-8; }
+    .prose-moaum h3 { @apply font-display text-lg font-semibold text-moaum-charcoal mt-6; }
+    .prose-moaum a { @apply text-moaum-blue underline underline-offset-2 hover:text-moaum-blue-dark; }
+    .prose-moaum ul { @apply list-disc pl-6 space-y-1; }
+    .prose-moaum ol { @apply list-decimal pl-6 space-y-1; }
+    .prose-moaum blockquote { @apply border-l-4 border-moaum-blue/40 pl-4 italic text-slate-600; }
+    .prose-moaum pre { @apply bg-slate-100 rounded-lg p-4 text-sm overflow-x-auto; }
+    .prose-moaum img { @apply rounded-xl max-w-full h-auto; }
+    .prose-moaum figcaption { @apply text-sm text-slate-500 mt-2; }
+
     /* Decorative dot-grid background used in hero/CTA sections of index.html */
     .dot-grid-red {
         background-image: radial-gradient(circle at 2px 2px, #C20409 1px, transparent 0);
