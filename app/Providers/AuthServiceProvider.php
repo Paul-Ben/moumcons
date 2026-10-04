@@ -30,9 +30,10 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         /*
-         * Policies for Module 9 CMS resources are registered there as the
-         * models come into existence; RBAC permissions drive authorization
-         * through them (never role-name checks in controllers).
+         * Resource policies resolve by naming convention (App\Models\X ->
+         * App\Policies\XPolicy), so Laravel's auto-discovery is enough. RBAC
+         * permissions drive authorization through them — never role-name
+         * checks in controllers (PRD §23).
          */
     }
 }

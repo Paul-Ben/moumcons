@@ -64,7 +64,7 @@ vendor/bin/pint
 
 ## Environment notes
 
-- SQLite database file: `database/database.sqlite` (created automatically by migrations). Sessions, cache, and queue also use the database; tests override these to in-memory/array drivers in `phpunit.xml`.
+- SQLite database file: `database/database.sqlite` (created by `composer setup`; migrations do not create it). Sessions, cache, and queue also use the database; tests override these to in-memory/array drivers in `phpunit.xml`.
 - Mail uses the `log` driver in dev — emails are written to `storage/logs/laravel.log`, not sent.
 - If you enable real mail or switch to MySQL, update `.env` accordingly; migrations are written to stay DB-agnostic.
 - `.npmrc` sets `ignore-scripts=true` so npm postinstall scripts never run; keep this behaviour in any `npm install` you run manually.
@@ -77,5 +77,5 @@ vendor/bin/pint
 - `app/Services/AuditLogger.php` + `app/Observers/AuditableTriageObserver.php` — audit trail for admin-affecting operations
 - `config/moaum.php` — company details + navigation structure (source for header/footer until the Settings admin UI lands)
 - `database/seeders/` — `RolePermissionSeeder`, `AdminUserSeeder`, `ContentSeeder` (sample divisions/services/settings)
-- `resources/views/` — `public/`, `auth/`, `admin/`, shared `components/`; design tokens and shared component classes (`.btn-primary`, `.card`, `.input`, …) live in `resources/css/app.css`
-- `prototype-docs/` — PRD/SRD, design system, and HTML prototypes; `docs/` mirrors the markdown docs
+- `resources/views/` — `public/`, `requests/`, `auth/`, `admin/`, shared `components/`; design tokens and shared component classes (`.btn-primary`, `.card`, `.input`, …) live in `resources/css/app.css`
+- `prototype-docs/` — PRD/SRD, design system, and HTML prototypes (the canonical copy of the spec docs)

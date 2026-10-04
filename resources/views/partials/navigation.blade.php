@@ -74,8 +74,8 @@
 
             {{-- Desktop CTAs --}}
             <div class="hidden lg:flex items-center space-x-4">
-                <a href="{{ route('contact.index', ['topic' => 'quote']) }}" class="text-moaum-blue font-medium hover:text-moaum-red transition">Request a Quote</a>
-                <x-button href="{{ route('contact.index', ['topic' => 'service']) }}" size="md">Request a Service</x-button>
+                <a href="{{ route('requests.quote.create') }}" class="text-moaum-blue font-medium hover:text-moaum-red transition">Request a Quote</a>
+                <x-button href="{{ route('requests.service.create') }}" size="md">Request a Service</x-button>
             </div>
 
             {{-- Mobile menu button --}}
@@ -93,8 +93,8 @@
                 <a href="{{ isset($item['route']) ? route($item['route']) : '#' }}" class="block px-3 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 rounded-md">{{ $item['label'] }}</a>
             @endforeach
             <div class="pt-4 space-y-3">
-                <x-button href="{{ route('contact.index', ['topic' => 'service']) }}" class="w-full">Request a Service</x-button>
-                <x-button href="{{ route('contact.index', ['topic' => 'quote']) }}" variant="outline" class="w-full">Request a Quote</x-button>
+                <x-button href="{{ route('requests.service.create') }}" class="w-full">Request a Service</x-button>
+                <x-button href="{{ route('requests.quote.create') }}" variant="outline" class="w-full">Request a Quote</x-button>
             </div>
         </div>
     </div>

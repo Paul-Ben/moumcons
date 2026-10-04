@@ -1,4 +1,5 @@
 {{-- Admin → Audit Logs: read-only, filterable trail (PRD §31/§32). --}}
+@use('Illuminate\Support\Str')
 <x-layouts.admin title="Audit Logs">
     <div class="space-y-6">
 

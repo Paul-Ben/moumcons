@@ -19,20 +19,20 @@ use Illuminate\View\View;
  */
 class AuditLogController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'permission:view-audit-logs']);
-    }
+    // Access control lives in routes/web.php: the admin.* group applies 'auth'
+    // and each route applies 'permission:view-audit-logs'. Do not add a
+    // constructor calling $this->middleware() — the base Controller does not
+    // implement HasMiddleware, so that call is a fatal error.
 
     /** GET /admin/audit-logs — filterable, paginated trail. */
     public function index(Request $request): View
     {
         $filters = $request->validate([
-            'q'      => ['nullable', 'string', 'max:255'],
+            'q' => ['nullable', 'string', 'max:255'],
             'action' => ['nullable', 'string', 'max:100'],
-            'user'   => ['nullable', 'integer'],
-            'from'   => ['nullable', 'date'],
-            'to'     => ['nullable', 'date'],
+            'user' => ['nullable', 'integer'],
+            'from' => ['nullable', 'date'],
+            'to' => ['nullable', 'date'],
         ]);
 
         $logs = AuditLog::query()
@@ -41,12 +41,12 @@ class AuditLogController extends Controller
             ->action($filters['action'] ?? null)
             ->between($filters['from'] ?? null, $filters['to'] ?? null)
             ->when($filters['q'] ?? null, function (Builder $query, string $term): void {
-                $like = '%' . str_replace(['%', '_'], ['\%', '\_'], $term) . '%';
+                $like = '%'.str_replace(['%', '_'], ['\%', '\_'], $term).'%';
 
                 $query->where(function (Builder $q) use ($like): void {
                     $q->where('description', 'like', $like)
-                      ->orWhere('action', 'like', $like)
-                      ->orWhereHas('user', fn (Builder $u) => $u->where('name', 'like', $like));
+                        ->orWhere('action', 'like', $like)
+                        ->orWhereHas('user', fn (Builder $u) => $u->where('name', 'like', $like));
                 });
             })
             ->latest('id')
@@ -72,10 +72,10 @@ class AuditLogController extends Controller
             ->keyBy('id');
 
         return view('admin.audit-logs.index', [
-            'logs'         => $logs,
-            'filters'      => $filters,
+            'logs' => $logs,
+            'filters' => $filters,
             'actionGroups' => $actionGroups,
-            'actors'       => $actors,
+            'actors' => $actors,
         ]);
     }
 

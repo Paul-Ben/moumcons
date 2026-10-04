@@ -19,6 +19,9 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <!-- Throwaway key so the suite never depends on a developer's .env. -->
+        <env name="APP_KEY" value="base64:LJgIi/ei/ZDWzM/pjfNbhAeRa8rM/0Z0YixaFAWjMKs="/>
+        <env name="APP_DEBUG" value="false"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
@@ -29,6 +32,9 @@
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
+        <!-- Pinned so DatabaseSeederTest does not depend on local .env overrides. -->
+        <env name="MOAUM_ADMIN_EMAIL" value="admin@moaum.test"/>
+        <env name="MOAUM_ADMIN_PASSWORD" value="ChangeMe!2026"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

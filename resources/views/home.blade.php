@@ -21,14 +21,14 @@
                     </h1>
                     <p class="text-lg lg:text-xl text-slate-600 mb-8 leading-relaxed">{{ $heroDescription }}</p>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <x-button href="{{ route('contact.index') }}" size="lg">Request a Service <x-icon name="arrow-right" class="h-5 w-5" /></x-button>
+                        <x-button href="{{ route('requests.service.create') }}" size="lg">Request a Service <x-icon name="arrow-right" class="h-5 w-5" /></x-button>
                         <x-button href="{{ route('businesses.index') }}" variant="outline" size="lg">Explore Our Businesses</x-button>
                     </div>
                 </div>
 
                 <div class="relative hidden lg:block">
                     <div class="relative rounded-2xl overflow-hidden shadow-elevated">
-                        <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&h=600&fit=crop" alt="MOAUM Team at work" class="w-full h-auto" loading="lazy">
+                        <img src="/images/hero-home.jpg" alt="MOAUM Team at work" class="w-full h-auto" loading="lazy">
                         <div class="absolute inset-0 bg-gradient-to-tr from-moaum-charcoal/40 to-transparent"></div>
                         <div class="absolute bottom-6 left-6 right-6 text-white">
                             <p class="font-display text-2xl font-bold">{{ $activeCount }}+ Business Divisions</p>
@@ -145,8 +145,8 @@
             <h2 class="font-display text-3xl lg:text-5xl font-bold text-white mb-6">{{ $cta['title'] }}</h2>
             <p class="text-xl text-slate-300 mb-10 max-w-3xl mx-auto">{{ $cta['description'] }}</p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <x-button href="{{ route('contact.index') }}" size="lg">Request a Service <x-icon name="arrow-right" class="h-5 w-5" /></x-button>
-                <x-button href="{{ route('contact.index') }}" variant="white" size="lg">Request a Quote</x-button>
+                <x-button href="{{ route('requests.service.create') }}" size="lg">Request a Service <x-icon name="arrow-right" class="h-5 w-5" /></x-button>
+                <x-button href="{{ route('requests.quote.create') }}" variant="white" size="lg">Request a Quote</x-button>
             </div>
         </div>
     </section>

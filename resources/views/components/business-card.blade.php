@@ -14,10 +14,7 @@
         $description ??= $division->short_description;
         $status = $division->status->label();           // Active | Coming Soon | Planned ...
         $image ??= $division->cover_image;
-        // Module 5 will register businesses.show; until then link to the directory.
-        $href = \Illuminate\Support\Facades\Route::has('businesses.show')
-            ? route('businesses.show', $division)
-            : route('businesses.index');
+        $href = route('businesses.show', $division);
     }
     $available = $status === 'Active';
     $badgeColor = match (true) {

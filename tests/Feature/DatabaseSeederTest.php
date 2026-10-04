@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\BusinessDivision;
 use App\Models\User;
 use App\Support\Rbac;
 use Database\Seeders\DatabaseSeeder;
@@ -59,5 +60,31 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame(count(Rbac::roles()), Role::count());
         $this->assertSame(count(Rbac::allPermissions()), Permission::count());
         $this->assertSame(1, User::where('email', 'admin@moaum.test')->count());
+    }
+
+    public function test_seeded_divisions_reference_placeholder_images_that_exist(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $withImage = BusinessDivision::where('slug', 'printing-and-publishing-services')->firstOrFail();
+
+        $this->assertSame('/images/division-printing-publishing.jpg', $withImage->cover_image);
+        $this->assertSame($withImage->cover_image, $withImage->hero_image);
+        $this->assertFileExists(public_path(ltrim($withImage->cover_image, '/')));
+
+        foreach (BusinessDivision::whereNotNull('cover_image')->get() as $division) {
+            $this->assertFileExists(public_path(ltrim($division->cover_image, '/')));
+        }
+    }
+
+    public function test_seeded_divisions_without_placeholder_art_keep_a_null_image(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        // Null lets the card fall back to its icon block instead of a broken <img>.
+        $division = BusinessDivision::where('slug', 'construction-services')->firstOrFail();
+
+        $this->assertNull($division->cover_image);
+        $this->assertNull($division->hero_image);
     }
 }

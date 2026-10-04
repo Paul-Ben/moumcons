@@ -10,6 +10,7 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\Setting;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 /**
  * Seeds the 16 business divisions from PRD §5, cross-division service
@@ -64,11 +65,11 @@ class ContentSeeder extends Seeder
         // PRD §5 — all 16 divisions, in order. Featured flags + statuses mirror
         // prototype-docs/index.html (Transportation shown as "Coming Soon").
         $divisions = [
-            ['printing-and-publishing-services', 'Printing & Publishing Services', 'active', true, 'Design & Creative', 'Commercial printing, publishing and institutional documentation services.'],
+            ['printing-and-publishing-services', 'Printing & Publishing Services', 'active', true, 'Business & Professional', 'Commercial printing, publishing and institutional documentation services.'],
             ['industrial-cleaning-and-fumigation-services', 'Industrial Cleaning & Fumigation', 'active', true, 'Business & Professional', 'Professional cleaning and fumigation services for commercial spaces.'],
             ['private-security-guards-and-intelligence-services', 'Private Security & Intelligence Services', 'active', false, 'Business & Professional', 'Licensed guarding, surveillance and intelligence support for institutions and enterprises.'],
             ['ai-and-digital-technology-training-centre', 'AI & Digital Technology Training', 'active', true, 'Technology & Education', 'Cutting-edge training in artificial intelligence and digital technologies.'],
-            ['psychological-and-drug-testing-centre', 'Psychological & Drug Testing Centre', 'planned', false, 'Health & Wellness', 'Certified psychological assessment and drug-testing services.'],
+            ['psychological-and-drug-testing-centre', 'Psychological & Drug Testing Centre', 'planned', false, 'Business & Professional', 'Certified psychological assessment and drug-testing services.'],
             ['consultancy-super-credit-store', 'Consultancy Super Credit Store', 'active', false, 'Commerce & Hospitality', 'Retail and credit-store services for staff, students and the community.'],
             ['restaurant-bakery-and-catering-services', 'Restaurant, Bakery & Catering', 'active', true, 'Commerce & Hospitality', 'Quality food services, catering and bakery products.'],
             ['training-and-capacity-building-services', 'Training & Capacity Building', 'active', false, 'Technology & Education', 'Professional development, workshops and organisational capacity programmes.'],
@@ -82,21 +83,41 @@ class ContentSeeder extends Seeder
             ['transportation-and-logistics-services', 'Transportation & Logistics', 'coming_soon', false, 'Agriculture & Logistics', 'Comprehensive logistics and haulage services.'],
         ];
 
+        // Placeholder photography in public/images — used so cards and detail
+        // heroes render an image instead of the blank icon block. Drop a file
+        // with the same name in to override; remove the entry once the client
+        // supplies final photography.
+        $images = [
+            'printing-and-publishing-services' => 'division-printing-publishing.jpg',
+            'industrial-cleaning-and-fumigation-services' => 'division-cleaning-fumigation.jpg',
+            'private-security-guards-and-intelligence-services' => 'division-security-intelligence.jpg',
+            'ai-and-digital-technology-training-centre' => 'division-ai-digital-technology.jpg',
+            'consultancy-super-credit-store' => 'division-super-credit-store.jpg',
+            'restaurant-bakery-and-catering-services' => 'division-restaurant-bakery-catering.jpg',
+            'training-and-capacity-building-services' => 'division-training-capacity-building.jpg',
+        ];
+
         $out = [];
         foreach ($divisions as $i => [$slug, $name, $status, $featured, $category, $short]) {
+            $image = isset($images[$slug]) && file_exists(public_path('images/'.$images[$slug]))
+                ? '/images/'.$images[$slug]
+                : null;
+
             $out[$slug] = BusinessDivision::updateOrCreate(
                 ['slug' => $slug],
                 [
                     'name' => $name,
                     'short_description' => $short,
-                    'full_description' => $short . ' As a division of ' . config('moaum.company.name')
-                        . ', we combine institutional credibility with commercial agility to deliver measurable value.',
+                    'full_description' => $short.' As a division of '.config('moaum.company.name')
+                        .', we combine institutional credibility with commercial agility to deliver measurable value.',
                     'category' => $category,
                     'status' => DivisionStatus::from($status)->value,
                     'featured' => $featured,
                     'icon' => 'building',
+                    'cover_image' => $image,
+                    'hero_image' => $image,
                     'sort_order' => $i + 1,
-                    'seo_title' => $name . ' | ' . config('moaum.company.short_name'),
+                    'seo_title' => $name.' | '.config('moaum.company.short_name'),
                     'seo_description' => $short,
                     'published_at' => now(),
                 ],
@@ -147,7 +168,7 @@ class ContentSeeder extends Seeder
 
         foreach ($services as $i => [$division, $category, $name, $short, $pricing, $featured]) {
             Service::updateOrCreate(
-                ['slug' => \Illuminate\Support\Str::slug($name)],
+                ['slug' => Str::slug($name)],
                 [
                     'business_division_id' => $divisions[$division]->id,
                     'service_category_id' => $categories[$category]->id,

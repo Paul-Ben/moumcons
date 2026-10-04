@@ -51,15 +51,18 @@ return [
         ],
 
         // Mega-menu groups — Design System §19 grouping of the 16 divisions.
+        // 'heading' must match business_divisions.category exactly: the header
+        // renders each group by looking up divisions grouped on that column.
+        // 'items' documents the expected membership of each group.
         'business_groups' => [
             ['heading' => 'Business & Professional', 'accent' => 'red', 'items' => [
-                'Printing & Publishing', 'Security', 'Cleaning & Fumigation', 'Consultancy',
+                'Printing & Publishing', 'Cleaning & Fumigation', 'Security & Intelligence', 'Psychological & Drug Testing',
             ]],
             ['heading' => 'Technology & Education', 'accent' => 'blue', 'items' => [
-                'AI & Digital Tech', 'Training', 'Staff School', 'ICT Secondary School',
+                'AI & Digital Technology', 'Training & Capacity Building', 'Staff School & ICT Secondary School',
             ]],
             ['heading' => 'Commerce & Hospitality', 'accent' => 'green', 'items' => [
-                'Super Credit Store', 'Restaurant/Catering', 'Property Development',
+                'Super Credit Store', 'Restaurant/Bakery/Catering', 'Property Development',
             ]],
             ['heading' => 'Industry & Infrastructure', 'accent' => 'charcoal', 'items' => [
                 'Construction Services', 'Construction Materials', 'Waste Management', 'Mining & Geo-Mining',

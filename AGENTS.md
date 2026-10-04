@@ -18,14 +18,14 @@ Laravel 13 (PHP ^8.3) corporate website + admin panel for MOAUM Consultancy Serv
 
 ## Architecture notes
 
-- Frontend: Blade + Alpine.js + Tailwind v4 (Vite). Reusable Blade components in `resources/views/components/` (layouts: `public.blade.php`, `admin.blade.php`; `button`, `badge`, `icon`). Icons come from the `lucide` npm package via `App\Support\Icons`.
+- Frontend: Blade + Alpine.js + Tailwind v4 (Vite). Reusable Blade components in `resources/views/components/` (layouts: `public.blade.php`, `admin.blade.php`; `button`, `badge`, `icon`). Icons are inline SVG paths held in `App\Support\Icons` (server-side map — not the `lucide` npm package, which is unused).
 - RBAC: `app/Support/Rbac.php` is the single source of truth for roles/permissions (spatie/laravel-permission). Seeders: `RolePermissionSeeder`, `AdminUserSeeder`.
   - Authorize with **permissions** (`permission:` middleware, policies, `can:`) — never check role names in controllers (PRD §23).
   - "Super Administrator" bypasses all gates via `Gate::before` in `app/Providers/AuthServiceProvider.php`; don't duplicate that logic.
   - spatie v8 resolves permission/role **names through a cached permission set**, not the DB, and that cache is only flushed by the models' `saved`/`deleted` **Eloquent events** (`RefreshesPermissionCache`). Consequences: never wrap seeders in `withoutEvents` (breaks `syncPermissions`/`hasRole`/`assignRole` with `PermissionDoesNotExist`), and after inserting permissions/roles out-of-band call `app(PermissionRegistrar::class)->forgetCachedPermissions()` (or `php artisan permission:cache-reset`). `User::query()->permission('x')` also throws if that permission row doesn't exist — tests that use it must seed RBAC first.
 - Audit trail: `App\Services\AuditLogger` + `AuditableTriageObserver` (observing Enquiry/ServiceRequest/QuoteRequest) and auth event listeners registered in `AppServiceProvider`. Add audit logging for new admin-affecting operations; the admin viewer is at `/admin/audit-logs`.
 - `config/moaum.php` holds company details and the site nav structure (incl. mega-menu groups) until the Settings table takes over in Module 10. Placeholder `Route::view` routes are wired to that config so nav links don't 404 — replace them with real modules as they land.
-- Route groups: public site, auth, and `admin.` (auth + per-screen `permission:` middleware). Views mirror this: `resources/views/public/`, `auth/`, `admin/`.
+- Route groups: public site, auth, and `admin.` (auth + per-screen `permission:` middleware). Views mirror this: `resources/views/public/`, `requests/`, `auth/`, `admin/`.
 - `config('moaum')` nav entries with `CLIENT_TO_PROVIDE` values in `config/moaum.php` are intentional placeholders awaiting client input — leave them.
 
 ## Local logins (seeded)

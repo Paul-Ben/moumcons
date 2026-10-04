@@ -87,19 +87,20 @@
         @apply bg-white rounded-2xl border border-slate-200 p-6 shadow-card;
     }
 
-    .input {
+    /* .form-input / .form-label are aliases kept in sync for newer templates
+       (login, CMS forms) — grouped here because @apply cannot reference a
+       custom component class in Tailwind v4. */
+    .input,
+    .form-input {
         @apply w-full h-12 px-4 rounded-[10px] border border-slate-300 bg-white text-slate-700
                placeholder:text-slate-400
                focus:outline-none focus:ring-2 focus:ring-moaum-blue focus:border-transparent;
     }
 
-    .label {
+    .label,
+    .form-label {
         @apply block text-sm font-semibold text-moaum-charcoal mb-1.5;
     }
-
-    /* Aliases used by newer templates (login, CMS forms) */
-    .form-input { @apply input; }
-    .form-label { @apply label; }
 
     .form-error {
         @apply mt-1.5 text-sm font-medium text-moaum-red;

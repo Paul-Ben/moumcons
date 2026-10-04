@@ -30,11 +30,11 @@ class LoginController extends Controller
     public function store(Request $request, RateLimiter $limiter): RedirectResponse
     {
         $credentials = $request->validate([
-            'email'    => ['required', 'string', 'email'],
+            'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ]);
 
-        $throttleKey = strtolower($credentials['email']) . '|' . $request->ip();
+        $throttleKey = strtolower($credentials['email']).'|'.$request->ip();
 
         if ($limiter->tooManyAttempts($throttleKey, 5)) {
             throw ValidationException::withMessages([
@@ -45,7 +45,17 @@ class LoginController extends Controller
             ]);
         }
 
-        if (! Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+        $credentials = $request->only('email', 'password');
+        $remember = $request->boolean('remember');
+
+        // Resolve the account and verify the password *before* authenticating.
+        // Auth::attempt() fires the Login event — and with it an 'auth.login'
+        // audit row — as soon as the credentials match, so checking is_active
+        // afterwards would record rejected logins as successful ones (and log
+        // a phantom logout alongside). validate() fires no events.
+        $user = Auth::getProvider()->retrieveByCredentials($credentials);
+
+        if (! $user || ! Auth::validate($credentials)) {
             $limiter->hit($throttleKey, 60);
 
             throw ValidationException::withMessages([
@@ -54,15 +64,15 @@ class LoginController extends Controller
         }
 
         // Deactivated accounts may not log in.
-        if (Auth::user()->is_active === false) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+        if ($user->is_active === false) {
+            $limiter->hit($throttleKey, 60);
 
             throw ValidationException::withMessages([
                 'email' => 'This account has been deactivated. Please contact the administrator.',
             ]);
         }
+
+        Auth::attempt($credentials, $remember);
 
         $limiter->clear($throttleKey);
         $request->session()->regenerate();

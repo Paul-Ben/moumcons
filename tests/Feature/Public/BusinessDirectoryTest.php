@@ -70,4 +70,25 @@ class BusinessDirectoryTest extends TestCase
 
         $this->get(route('businesses.show', $division))->assertNotFound();
     }
+
+    public function test_card_renders_the_cover_image_when_one_is_set(): void
+    {
+        $division = $this->division([
+            'status' => DivisionStatus::Active,
+            'cover_image' => '/images/division-printing-publishing.jpg',
+        ]);
+
+        $this->get(route('businesses.index'))
+            ->assertOk()
+            ->assertSee('src="/images/division-printing-publishing.jpg"', escape: false);
+    }
+
+    public function test_card_falls_back_to_its_icon_block_without_a_cover_image(): void
+    {
+        $division = $this->division(['status' => DivisionStatus::Active, 'cover_image' => null]);
+
+        $response = $this->get(route('businesses.index'))->assertOk();
+
+        $response->assertDontSee('<img src="/images/', escape: false);
+    }
 }
