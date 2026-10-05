@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\QuoteRequest;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -11,7 +12,7 @@ use Illuminate\Notifications\Notification;
  * PRD §25 "Quote available" — sent once, when a quote request moves to
  * Quote Sent. Carries the amount and message staff prepared.
  */
-class QuoteAvailable extends Notification
+class QuoteAvailable extends Notification implements ShouldQueue
 {
     use Queueable;
 

@@ -3,11 +3,12 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /** PRD §12/§13/§30 — alert triage users when a new request arrives. */
-class AdminNewRequestAlert extends Notification
+class AdminNewRequestAlert extends Notification implements ShouldQueue
 {
     use Queueable;
 

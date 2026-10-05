@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -11,7 +12,7 @@ use Illuminate\Notifications\Notification;
  * service or quote request along. Only the public status label is shared;
  * internal notes never leave the admin.
  */
-class RequestStatusChanged extends Notification
+class RequestStatusChanged extends Notification implements ShouldQueue
 {
     use Queueable;
 

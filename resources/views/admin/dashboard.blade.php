@@ -15,6 +15,17 @@
         @endcan
     </div>
 
+    {{-- Quick actions (prototype admin.html) --}}
+    @if ($quickActions)
+        <div class="flex flex-wrap gap-2 mb-6">
+            @foreach ($quickActions as $action)
+                <a href="{{ $action['url'] }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-slate-200 text-sm font-medium text-slate-700 hover:border-moaum-blue hover:text-moaum-blue transition">
+                    <x-icon :name="$action['icon']" class="w-4 h-4" /> {{ $action['label'] }}
+                </a>
+            @endforeach
+        </div>
+    @endif
+
     {{-- Widget row --}}
     <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         @foreach ($stats as $stat)
@@ -45,6 +56,16 @@
         <div class="card">
             <h2 class="font-display font-bold text-moaum-charcoal mb-4">Open requests by service</h2>
             <x-dashboard.breakdown :series="$requestsByService" empty="No open service requests" />
+        </div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-4 mb-6">
+        <div class="card">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-display font-bold text-moaum-charcoal">Training interest</h2>
+                <span class="text-xs text-slate-400">Last 12 months</span>
+            </div>
+            <x-dashboard.breakdown :series="$trainingInterest" empty="No training interest registered yet" />
         </div>
     </div>
 

@@ -16,6 +16,7 @@ use App\Models\Service;
 use App\Models\ServiceRequest;
 use App\Models\TrainingProgramme;
 use App\Models\User;
+use App\Support\Rbac;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -40,6 +41,8 @@ class DashboardController extends Controller
             'enquiriesByMonth' => $this->enquiriesByMonth(),
             'requestsByDivision' => $this->requestsByDimension('division'),
             'requestsByService' => $this->requestsByDimension('service'),
+            'trainingInterest' => $this->trainingInterest(),
+            'quickActions' => $this->quickActions(),
             'recentEnquiries' => Enquiry::query()
                 ->with('division:id,name')
                 ->latest()
@@ -135,8 +138,10 @@ class DashboardController extends Controller
             ],
             [
                 'label' => 'Staff users',
-                'value' => User::query()->count(),
-                'hint' => 'with admin access',
+                'value' => User::query()->where('is_active', true)
+                    ->whereHas('roles', fn ($q) => $q->whereNotIn('name', [Rbac::CUSTOMER, Rbac::TRAINING_PARTICIPANT]))
+                    ->count(),
+                'hint' => 'active, with a staff role',
                 'icon' => 'users',
                 'tone' => 'charcoal',
             ],
@@ -175,6 +180,55 @@ class DashboardController extends Controller
         }
 
         return $series;
+    }
+
+    /**
+     * PRD §24 "Training registrations". Online registration is future scope,
+     * so this counts interest registrations (filed as enquiries by
+     * TrainingController) per programme over the last 12 months.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function trainingInterest(): array
+    {
+        $prefix = 'Training interest: ';
+
+        return Enquiry::query()
+            ->where('subject', 'like', $prefix.'%')
+            ->where('created_at', '>=', now()->subYear())
+            ->select('subject', DB::raw('count(*) as aggregate'))
+            ->groupBy('subject')
+            ->orderByDesc('aggregate')
+            ->limit(self::BREAKDOWN_LIMIT)
+            ->get()
+            ->map(fn ($row) => ['label' => substr($row->subject, strlen($prefix)), 'value' => (int) $row->aggregate])
+            ->all();
+    }
+
+    /**
+     * Prototype "Quick actions": shortcuts filtered by permission so nobody
+     * sees a button that leads to a 403.
+     *
+     * @return list<array{label: string, icon: string, url: string}>
+     */
+    private function quickActions(): array
+    {
+        $user = auth()->user();
+
+        return collect([
+            ['Review enquiries', 'mail', 'admin.enquiries.index', 'view-enquiries'],
+            ['New news article', 'newspaper', 'admin.news.create', 'create-news'],
+            ['New project', 'hard-hat', 'admin.projects.create', 'create-projects'],
+            ['New training programme', 'graduation-cap', 'admin.training.create', 'create-training'],
+            ['Upload document', 'download', 'admin.documents.create', 'create-downloads'],
+            ['Upload images', 'image', 'admin.media.index', 'upload-media'],
+            ['Post a job', 'briefcase', 'admin.jobs.create', 'create-careers'],
+            ['Site settings', 'settings', 'admin.settings.edit', 'manage-settings'],
+        ])
+            ->filter(fn ($action) => $user->can($action[3]))
+            ->map(fn ($action) => ['label' => $action[0], 'icon' => $action[1], 'url' => route($action[2])])
+            ->values()
+            ->all();
     }
 
     /**

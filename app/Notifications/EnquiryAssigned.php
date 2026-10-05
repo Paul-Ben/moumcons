@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\Enquiry;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -13,7 +14,7 @@ use Illuminate\Notifications\Notification;
  * Sent when an enquiry is assigned, so ownership arriving in someone's inbox is
  * never a surprise discovered later in the queue.
  */
-class EnquiryAssigned extends Notification
+class EnquiryAssigned extends Notification implements ShouldQueue
 {
     use Queueable;
 
