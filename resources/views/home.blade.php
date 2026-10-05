@@ -158,6 +158,26 @@
         </section>
     @endif
 
+    {{-- Latest news (PRD §8 section 10) --}}
+    @if ($latestNews->isNotEmpty())
+        <section class="py-20 bg-slate-50">
+            <x-container>
+                <div class="flex flex-wrap items-end justify-between gap-4 mb-12">
+                    <div>
+                        <p class="eyebrow mb-2">News &amp; Updates</p>
+                        <h2 class="font-display text-3xl lg:text-4xl font-bold text-moaum-charcoal">Latest from MOAUM</h2>
+                    </div>
+                    <a href="{{ route('news.index') }}" class="btn-outline">All news <x-icon name="arrow-right" class="w-4 h-4" /></a>
+                </div>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    @foreach ($latestNews as $article)
+                        <x-news-card :article="$article" />
+                    @endforeach
+                </div>
+            </x-container>
+        </section>
+    @endif
+
     {{-- CTA --}}
     <section class="py-20 bg-moaum-charcoal relative overflow-hidden">
         <div class="absolute inset-0 opacity-10"><div class="absolute inset-0 dot-grid-blue"></div></div>

@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\BusinessDivisionController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EnquiryController;
 use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\NewsCategoryController;
+use App\Http\Controllers\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\Admin\ProjectController as AdminProjectController;
 use App\Http\Controllers\Admin\QuoteRequestController;
 use App\Http\Controllers\Admin\ServiceCategoryController;
@@ -13,6 +15,7 @@ use App\Http\Controllers\Admin\ServiceRequestController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\BusinessController;
 use App\Http\Controllers\Public\ContactController;
+use App\Http\Controllers\Public\NewsController;
 use App\Http\Controllers\Public\ProjectController;
 use App\Http\Controllers\Public\ServiceCatalogController;
 use App\Http\Controllers\Requests\RequestQuoteController;
@@ -40,6 +43,10 @@ Route::get('/services/{service:slug}', [ServiceCatalogController::class, 'show']
 // M4 — Project portfolio (PRD §14).
 Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
 Route::get('/projects/{project:slug}', [ProjectController::class, 'show'])->name('projects.show');
+
+// M5 — News & updates (PRD §16).
+Route::get('/news', [NewsController::class, 'index'])->name('news.index');
+Route::get('/news/{article:slug}', [NewsController::class, 'show'])->name('news.show');
 
 // Module 7 — Customer engagement: service + quote requests, public tracking
 // (PRD §12/§13). Forms are public; protected by rate limiting + honeypot.
@@ -71,7 +78,6 @@ foreach ([
     'about.leadership' => '/about/leadership',
     'about.university' => '/about/university-relationship',
     'training.index' => '/training',
-    'news.index' => '/news',
     'careers.index' => '/careers',
 ] as $name => $uri) {
     Route::view($uri, 'placeholder')->name($name);
@@ -186,6 +192,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     // M4 — Projects (PRD §14).
     Route::middleware('permission:view-projects')->group(function () {
         Route::resource('projects', AdminProjectController::class)->except('show');
+    });
+
+    // M5 — News (PRD §16).
+    Route::middleware('permission:view-news')->group(function () {
+        Route::resource('news', AdminNewsController::class)->except('show')->parameters(['news' => 'article']);
+        Route::resource('news-categories', NewsCategoryController::class)
+            ->only(['index', 'store', 'update', 'destroy'])
+            ->parameters(['news-categories' => 'category']);
     });
 
     // M2 — Media library (PRD §19/§22). Per-action checks live in MediaPolicy;

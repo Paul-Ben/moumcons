@@ -45,6 +45,11 @@ final class AdminNav
                 'permission' => 'view-projects',
             ],
             [
+                'label' => 'News', 'icon' => 'newspaper',
+                'route' => 'admin.news.index', 'active' => ['admin.news.*', 'admin.news-categories.*'],
+                'permission' => 'view-news',
+            ],
+            [
                 'label' => 'Enquiries', 'icon' => 'mail',
                 'route' => 'admin.enquiries.index', 'active' => 'admin.enquiries.*',
                 'permission' => 'view-enquiries',
