@@ -120,6 +120,25 @@
                     </div>
                 @endif
 
+                {{-- Gallery (PRD §10 section 7) --}}
+                @if ($galleryImages->isNotEmpty())
+                    <div>
+                        <div class="flex items-end justify-between gap-4 mb-6">
+                            <h2 class="font-display text-2xl font-bold text-moaum-charcoal">Gallery</h2>
+                            <a href="{{ route('gallery.index', ['type' => 'division']) }}" class="text-sm font-semibold text-moaum-blue hover:underline">More photos</a>
+                        </div>
+                        <x-lightbox-gallery :images="$galleryImages" :alt="$division->name" />
+                    </div>
+                @endif
+
+                {{-- FAQs (PRD §10 section 8) --}}
+                @if ($faqs->isNotEmpty())
+                    <div>
+                        <h2 class="font-display text-2xl font-bold text-moaum-charcoal mb-2">Frequently Asked Questions</h2>
+                        <x-faq-list :faqs="$faqs" />
+                    </div>
+                @endif
+
                 {{-- Related divisions --}}
                 @if ($related->count())
                     <div>

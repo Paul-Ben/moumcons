@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ class LoginController extends Controller
     public function create(): View|RedirectResponse
     {
         if (Auth::check()) {
-            return redirect()->route('admin.dashboard');
+            return redirect($this->homeFor(Auth::user()));
         }
 
         return view('auth.login');
@@ -77,7 +78,16 @@ class LoginController extends Controller
         $limiter->clear($throttleKey);
         $request->session()->regenerate();
 
-        return redirect()->intended(route('admin.dashboard'));
+        return redirect()->intended($this->homeFor($user));
+    }
+
+    /**
+     * Staff land on the dashboard; accounts without admin access (customers,
+     * training participants) go back to the public site instead of a 403.
+     */
+    private function homeFor(User $user): string
+    {
+        return $user->can('view-admin-dashboard') ? route('admin.dashboard') : route('home');
     }
 
     /**

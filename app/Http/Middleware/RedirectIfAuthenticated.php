@@ -15,8 +15,8 @@ class RedirectIfAuthenticated
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user()) {
-            return redirect()->route('admin.dashboard');
+        if ($user = $request->user()) {
+            return redirect()->route($user->can('view-admin-dashboard') ? 'admin.dashboard' : 'home');
         }
 
         return $next($request);

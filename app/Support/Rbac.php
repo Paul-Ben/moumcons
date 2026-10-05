@@ -13,10 +13,15 @@ final class Rbac
 {
     /** Roles (PRD §23). */
     public const SUPER_ADMINISTRATOR = 'Super Administrator';
-    public const ADMINISTRATOR       = 'Administrator';
-    public const CONTENT_EDITOR      = 'Content Editor';
-    public const BUSINESS_MANAGER    = 'Business Manager';
-    public const CUSTOMER            = 'Customer';
+
+    public const ADMINISTRATOR = 'Administrator';
+
+    public const CONTENT_EDITOR = 'Content Editor';
+
+    public const BUSINESS_MANAGER = 'Business Manager';
+
+    public const CUSTOMER = 'Customer';
+
     public const TRAINING_PARTICIPANT = 'Training Participant';
 
     /** All roles in assignment-priority order. */
@@ -41,20 +46,23 @@ final class Rbac
     public static function permissionGroups(): array
     {
         return [
-            'pages'        => ['view-pages', 'create-pages', 'edit-pages', 'publish-pages', 'delete-pages'],
-            'services'     => ['view-services', 'create-services', 'edit-services', 'publish-services', 'delete-services'],
-            'divisions'    => ['view-divisions', 'create-divisions', 'edit-divisions', 'publish-divisions', 'delete-divisions'],
-            'projects'     => ['view-projects', 'create-projects', 'edit-projects', 'publish-projects', 'delete-projects'],
-            'news'         => ['view-news', 'create-news', 'edit-news', 'publish-news', 'delete-news'],
-            'training'     => ['view-training', 'create-training', 'edit-training', 'publish-training', 'delete-training'],
-            'careers'      => ['view-careers', 'create-careers', 'edit-careers', 'publish-careers', 'delete-careers'],
-            'media'        => ['view-media', 'upload-media', 'delete-media'],
-            'enquiries'    => ['view-enquiries', 'assign-enquiries', 'update-enquiries', 'close-enquiries'],
-            'requests'     => ['view-service-requests', 'update-service-requests', 'view-quotes', 'create-quotes', 'update-quotes', 'close-quotes'],
-            'users'        => ['manage-users', 'manage-roles'],
-            'settings'     => ['manage-settings'],
-            'audit'        => ['view-audit-logs'],
-            'dashboard'    => ['view-admin-dashboard'],
+            'pages' => ['view-pages', 'create-pages', 'edit-pages', 'publish-pages', 'delete-pages'],
+            'services' => ['view-services', 'create-services', 'edit-services', 'publish-services', 'delete-services'],
+            'divisions' => ['view-divisions', 'create-divisions', 'edit-divisions', 'publish-divisions', 'delete-divisions'],
+            'projects' => ['view-projects', 'create-projects', 'edit-projects', 'publish-projects', 'delete-projects'],
+            'news' => ['view-news', 'create-news', 'edit-news', 'publish-news', 'delete-news'],
+            'training' => ['view-training', 'create-training', 'edit-training', 'publish-training', 'delete-training'],
+            'careers' => ['view-careers', 'create-careers', 'edit-careers', 'publish-careers', 'delete-careers'],
+            'downloads' => ['view-downloads', 'create-downloads', 'edit-downloads', 'publish-downloads', 'delete-downloads'],
+            'faqs' => ['view-faqs', 'create-faqs', 'edit-faqs', 'publish-faqs', 'delete-faqs'],
+            'gallery' => ['view-gallery', 'create-gallery', 'edit-gallery', 'publish-gallery', 'delete-gallery'],
+            'media' => ['view-media', 'upload-media', 'delete-media'],
+            'enquiries' => ['view-enquiries', 'assign-enquiries', 'update-enquiries', 'close-enquiries'],
+            'requests' => ['view-service-requests', 'update-service-requests', 'view-quotes', 'create-quotes', 'update-quotes', 'close-quotes'],
+            'users' => ['manage-users', 'manage-roles'],
+            'settings' => ['manage-settings'],
+            'audit' => ['view-audit-logs'],
+            'dashboard' => ['view-admin-dashboard'],
         ];
     }
 
@@ -74,15 +82,19 @@ final class Rbac
      */
     public static function rolePermissions(): array
     {
-        $contentView  = ['view-pages', 'view-services', 'view-divisions', 'view-projects', 'view-news', 'view-training', 'view-careers', 'view-media'];
+        $contentView = ['view-pages', 'view-services', 'view-divisions', 'view-projects', 'view-news', 'view-training', 'view-careers', 'view-media',
+            'view-downloads', 'view-faqs', 'view-gallery'];
         $contentWrite = ['create-pages', 'edit-pages', 'publish-pages',
-                         'create-services', 'edit-services', 'publish-services',
-                         'create-divisions', 'edit-divisions', 'publish-divisions',
-                         'create-projects', 'edit-projects', 'publish-projects',
-                         'create-news', 'edit-news', 'publish-news',
-                         'create-training', 'edit-training', 'publish-training',
-                         'create-careers', 'edit-careers', 'publish-careers',
-                         'upload-media'];
+            'create-services', 'edit-services', 'publish-services',
+            'create-divisions', 'edit-divisions', 'publish-divisions',
+            'create-projects', 'edit-projects', 'publish-projects',
+            'create-news', 'edit-news', 'publish-news',
+            'create-training', 'edit-training', 'publish-training',
+            'create-careers', 'edit-careers', 'publish-careers',
+            'create-downloads', 'edit-downloads', 'publish-downloads',
+            'create-faqs', 'edit-faqs', 'publish-faqs',
+            'create-gallery', 'edit-gallery', 'publish-gallery',
+            'upload-media'];
 
         return [
             // Full access — granted implicitly through Gate::before() as well.

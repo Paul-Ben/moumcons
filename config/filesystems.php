@@ -51,6 +51,18 @@ return [
             'report' => false,
         ],
 
+        /*
+         * Document library (PRD §18) and job applications (§17). Never
+         * web-reachable: every download goes through a controller that checks
+         * the access level and counts it.
+         */
+        'documents' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/documents'),
+            'throw' => false,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

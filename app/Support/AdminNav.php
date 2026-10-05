@@ -60,6 +60,21 @@ final class AdminNav
                 'permission' => 'view-news',
             ],
             [
+                'label' => 'Downloads', 'icon' => 'download',
+                'route' => 'admin.documents.index', 'active' => 'admin.documents.*',
+                'permission' => 'view-downloads',
+            ],
+            [
+                'label' => 'Gallery', 'icon' => 'image',
+                'route' => 'admin.galleries.index', 'active' => 'admin.galleries.*',
+                'permission' => 'view-gallery',
+            ],
+            [
+                'label' => 'FAQs', 'icon' => 'help-circle',
+                'route' => 'admin.faqs.index', 'active' => 'admin.faqs.*',
+                'permission' => 'view-faqs',
+            ],
+            [
                 'label' => 'Enquiries', 'icon' => 'mail',
                 'route' => 'admin.enquiries.index', 'active' => 'admin.enquiries.*',
                 'permission' => 'view-enquiries',

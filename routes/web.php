@@ -3,7 +3,10 @@
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\BusinessDivisionController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\EnquiryController;
+use App\Http\Controllers\Admin\FaqController as AdminFaqController;
+use App\Http\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Http\Controllers\Admin\LeadershipMemberController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\NewsCategoryController;
@@ -18,6 +21,9 @@ use App\Http\Controllers\Admin\TrainingProgrammeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\BusinessController;
 use App\Http\Controllers\Public\ContactController;
+use App\Http\Controllers\Public\DownloadController;
+use App\Http\Controllers\Public\FaqController;
+use App\Http\Controllers\Public\GalleryController;
 use App\Http\Controllers\Public\NewsController;
 use App\Http\Controllers\Public\PageController;
 use App\Http\Controllers\Public\ProjectController;
@@ -59,6 +65,16 @@ Route::get('/training/{programme:slug}', [TrainingController::class, 'show'])->n
 Route::post('/training/{programme:slug}/interest', [TrainingController::class, 'registerInterest'])
     ->middleware('throttle:6,1')
     ->name('training.interest');
+
+// M8 — Downloads (PRD §18), FAQs (§22) and gallery (§19). Downloads are
+// access-checked and counted; files are never served directly.
+Route::get('/downloads', [DownloadController::class, 'index'])->name('downloads.index');
+Route::get('/downloads/{document:slug}', [DownloadController::class, 'download'])
+    ->middleware('throttle:60,1')
+    ->name('downloads.show');
+Route::get('/faqs', [FaqController::class, 'index'])->name('faqs.index');
+Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery.index');
+Route::get('/gallery/{gallery:slug}', [GalleryController::class, 'show'])->name('gallery.show');
 
 // Module 7 — Customer engagement: service + quote requests, public tracking
 // (PRD §12/§13). Forms are public; protected by rate limiting + honeypot.
@@ -231,6 +247,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::middleware('permission:view-pages')->group(function () {
         Route::resource('pages', AdminPageController::class)->except('show');
         Route::resource('leadership', LeadershipMemberController::class)->except('show')->parameters(['leadership' => 'member']);
+    });
+
+    // M8 — Downloads, FAQs, gallery.
+    Route::middleware('permission:view-downloads')->group(function () {
+        Route::resource('documents', DocumentController::class)->except('show');
+        Route::get('/documents/{document}/file', [DocumentController::class, 'file'])->name('documents.file');
+    });
+    Route::middleware('permission:view-faqs')->group(function () {
+        Route::resource('faqs', AdminFaqController::class)->except('show');
+    });
+    Route::middleware('permission:view-gallery')->group(function () {
+        Route::resource('galleries', AdminGalleryController::class)->except('show');
     });
 
     // M2 — Media library (PRD §19/§22). Per-action checks live in MediaPolicy;

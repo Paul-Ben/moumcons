@@ -15,11 +15,17 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** A staff account: lands on the dashboard after signing in. */
     private function admin(): User
     {
-        return User::factory()->create([
+        $this->seed(RolePermissionSeeder::class);
+
+        $user = User::factory()->create([
             'password' => Hash::make('Password123'),
         ]);
+        $user->assignRole(Rbac::ADMINISTRATOR);
+
+        return $user;
     }
 
     /**
@@ -143,7 +149,7 @@ class AuthenticationTest extends TestCase
         Permission::findOrCreate('view-admin-dashboard', 'web');
         Role::findOrCreate(Rbac::CUSTOMER, 'web')->syncPermissions([]);
 
-        $user = $this->admin();
+        $user = User::factory()->create();
         $user->assignRole(Rbac::CUSTOMER);
 
         $this->actingAs($user)->get('/admin/dashboard')->assertForbidden();

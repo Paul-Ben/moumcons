@@ -21,7 +21,7 @@
             <div>
                 <h4 class="text-white font-semibold mb-4">Quick Links</h4>
                 <ul class="space-y-3">
-                    @foreach ([['About Us', 'about.profile'], ['Our Businesses', 'businesses.index'], ['Services', 'services.index'], ['Projects', 'projects.index'], ['Training', 'training.index'], ['Careers', 'careers.index']] as [$label, $route])
+                    @foreach ([['About Us', 'about.profile'], ['Our Businesses', 'businesses.index'], ['Services', 'services.index'], ['Projects', 'projects.index'], ['Training', 'training.index'], ['News', 'news.index'], ['Gallery', 'gallery.index'], ['Downloads', 'downloads.index'], ['FAQs', 'faqs.index'], ['Careers', 'careers.index']] as [$label, $route])
                         <li><a href="{{ route($route) }}" class="hover:text-moaum-red transition">{{ $label }}</a></li>
                     @endforeach
                 </ul>

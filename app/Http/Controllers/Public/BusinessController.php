@@ -6,6 +6,7 @@ use App\Enums\DivisionStatus;
 use App\Enums\ServiceStatus;
 use App\Http\Controllers\Controller;
 use App\Models\BusinessDivision;
+use App\Models\GalleryImage;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -84,6 +85,15 @@ class BusinessController extends Controller
             ->take(4)
             ->get();
 
+        $faqs = $division->faqs()->published()->ordered()->get();
+
+        // PRD §10 section 7 — a taste of the division's published albums.
+        $galleryImages = GalleryImage::query()
+            ->whereHas('gallery', fn ($q) => $q->published()->where('business_division_id', $division->id))
+            ->orderBy('sort_order')
+            ->take(6)
+            ->get();
+
         $related = BusinessDivision::query()
             ->publiclyVisible()
             ->whereKeyNot($division->id)
@@ -96,6 +106,8 @@ class BusinessController extends Controller
             'division' => $division,
             'related' => $related,
             'projects' => $projects,
+            'faqs' => $faqs,
+            'galleryImages' => $galleryImages,
         ]);
     }
 }

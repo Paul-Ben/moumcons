@@ -68,6 +68,16 @@ class BusinessDivision extends Model
         return $this->hasMany(Project::class, 'business_division_id');
     }
 
+    public function faqs(): HasMany
+    {
+        return $this->hasMany(Faq::class, 'business_division_id');
+    }
+
+    public function galleries(): HasMany
+    {
+        return $this->hasMany(Gallery::class, 'business_division_id');
+    }
+
     public function serviceRequests(): HasMany
     {
         return $this->hasMany(ServiceRequest::class, 'business_division_id');
