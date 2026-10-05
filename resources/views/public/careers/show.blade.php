@@ -2,6 +2,19 @@
 <x-layouts.public :title="$job->title.' | Careers | '.config('moaum.company.short_name')"
                   :meta-description="$job->summary ?: \Illuminate\Support\Str::limit(\App\Support\RichText::toPlainText($job->description), 155)">
 
+    {{-- Google for Jobs (PRD §34 structured data). --}}
+    <x-json-ld :data="[
+        '@context' => 'https://schema.org',
+        '@type' => 'JobPosting',
+        'title' => $job->title,
+        'description' => (string) ($job->description ?: $job->summary ?: $job->title),
+        'datePosted' => ($job->published_at ?? $job->created_at)->toDateString(),
+        'validThrough' => $job->application_deadline?->endOfDay()->toIso8601String(),
+        'employmentType' => strtoupper($job->employment_type->value),
+        'hiringOrganization' => ['@type' => 'Organization', 'name' => config('moaum.company.name'), 'sameAs' => url('/'), 'logo' => asset('images/logo.jpg')],
+        'jobLocation' => ['@type' => 'Place', 'address' => ['@type' => 'PostalAddress', 'addressLocality' => $job->location ?: 'Makurdi', 'addressRegion' => 'Benue', 'addressCountry' => 'NG']],
+    ]" />
+
     <section class="bg-gradient-to-br from-slate-50 via-white to-slate-100 border-b border-slate-200">
         <x-container class="py-14 lg:py-16">
             <nav aria-label="Breadcrumb" class="flex flex-wrap text-sm text-slate-500 mb-4">

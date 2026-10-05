@@ -63,14 +63,17 @@
                 <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden text-slate-500" aria-label="Toggle sidebar">
                     <x-icon name="menu" class="w-6 h-6" />
                 </button>
-                <div class="flex-1 max-w-xl mx-6 hidden md:block">
+                <form method="GET" action="{{ route('admin.search') }}" role="search" class="flex-1 max-w-xl mx-6 hidden md:block">
                     <div class="relative">
                         <x-icon name="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                        <input type="search" placeholder="Search enquiries, services, or users..."
+                        <label for="admin-search" class="sr-only">Search the admin</label>
+                        <input id="admin-search" type="search" name="q" value="{{ request()->routeIs('admin.search') ? request('q') : '' }}"
+                               placeholder="Search references, people, or content…" maxlength="100"
                                class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-moaum-blue focus:border-transparent text-sm">
                     </div>
-                </div>
+                </form>
                 <div class="flex items-center gap-4 ml-auto">
+                    <a href="{{ route('home') }}" target="_blank" rel="noopener" class="text-sm text-slate-500 hover:text-moaum-red font-medium hidden sm:inline">View site →</a>
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
                         <button type="submit" class="btn-ghost text-sm inline-flex items-center gap-2">

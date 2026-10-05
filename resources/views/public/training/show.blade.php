@@ -1,6 +1,15 @@
 {{-- PRD §15 — training programme detail + register interest. --}}
 <x-layouts.public :title="($programme->seo_title ?: $programme->title).' | '.config('moaum.company.short_name')"
-                  :meta-description="$programme->seo_description ?: ($programme->summary ?: \Illuminate\Support\Str::limit(\App\Support\RichText::toPlainText($programme->description), 155))">
+                  :meta-description="$programme->seo_description ?: ($programme->summary ?: \Illuminate\Support\Str::limit(\App\Support\RichText::toPlainText($programme->description), 155))"
+                  :og-image="$programme->featured_image">
+
+    <x-json-ld :data="[
+        '@context' => 'https://schema.org',
+        '@type' => 'Course',
+        'name' => $programme->title,
+        'description' => $programme->summary ?: \Illuminate\Support\Str::limit(\App\Support\RichText::toPlainText($programme->description), 300),
+        'provider' => ['@type' => 'Organization', 'name' => config('moaum.company.name'), 'url' => url('/')],
+    ]" />
 
     <section class="relative bg-moaum-charcoal py-20 lg:py-24">
         <div class="absolute inset-0">

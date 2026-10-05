@@ -1,6 +1,20 @@
 {{-- PRD §16 — news article. --}}
 <x-layouts.public :title="($article->seo_title ?: $article->title).' | '.config('moaum.company.short_name')"
-                  :meta-description="$article->seo_description ?: $article->summary(155)">
+                  :meta-description="$article->seo_description ?: $article->summary(155)"
+                  :og-image="$article->featured_image" og-type="article">
+
+    <x-json-ld :data="[
+        '@context' => 'https://schema.org',
+        '@type' => 'NewsArticle',
+        'headline' => \Illuminate\Support\Str::limit($article->title, 110, ''),
+        'description' => $article->summary(300),
+        'image' => $article->featured_image ? [url($article->featured_image)] : null,
+        'datePublished' => $article->published_at->toIso8601String(),
+        'dateModified' => $article->updated_at->toIso8601String(),
+        'author' => $article->author ? ['@type' => 'Person', 'name' => $article->author->name] : ['@type' => 'Organization', 'name' => config('moaum.company.name')],
+        'publisher' => ['@type' => 'Organization', 'name' => config('moaum.company.name'), 'logo' => ['@type' => 'ImageObject', 'url' => asset('images/logo.jpg')]],
+        'mainEntityOfPage' => route('news.show', $article),
+    ]" />
 
     <article>
         <header class="bg-gradient-to-br from-slate-50 via-white to-slate-100 border-b border-slate-200">

@@ -4,7 +4,8 @@
     $requestUrl = fn (string $route) => route($route, ['service' => $service->slug]);
 @endphp
 <x-layouts.public :title="$service->seo_title ?: ($service->name . ' | ' . config('moaum.company.short_name'))"
-                  :meta-description="$service->seo_description ?: $service->short_description">
+                  :meta-description="$service->seo_description ?: $service->short_description"
+                  :og-image="$service->image">
 
     <section class="bg-gradient-to-br from-slate-50 via-white to-slate-100 border-b border-slate-200">
         <x-container class="py-14 lg:py-16">

@@ -5,7 +5,8 @@
 @endphp
 
 <x-layouts.public :title="($page->seo_title ?: $page->title).' | '.config('moaum.company.short_name')"
-                  :meta-description="$page->seo_description ?: ($summary ?: \Illuminate\Support\Str::limit(\App\Support\RichText::toPlainText($content), 155))">
+                  :meta-description="$page->seo_description ?: ($summary ?: \Illuminate\Support\Str::limit(\App\Support\RichText::toPlainText($content), 155))"
+                  :og-image="$page->hero_image">
 
     <section class="relative bg-moaum-charcoal py-16 lg:py-24 overflow-hidden">
         @if ($page->hero_image)

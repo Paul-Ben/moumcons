@@ -1,6 +1,7 @@
 {{-- PRD §14 — project detail: hero, description, scope, gallery, key facts. --}}
 <x-layouts.public :title="($project->seo_title ?: $project->title).' | '.config('moaum.company.short_name')"
-                  :meta-description="$project->seo_description ?: ($project->summary ?: \Illuminate\Support\Str::limit(\App\Support\RichText::toPlainText($project->description), 155))">
+                  :meta-description="$project->seo_description ?: ($project->summary ?: \Illuminate\Support\Str::limit(\App\Support\RichText::toPlainText($project->description), 155))"
+                  :og-image="$project->featured_image">
 
     <section class="relative bg-moaum-charcoal py-20 lg:py-28">
         <div class="absolute inset-0">

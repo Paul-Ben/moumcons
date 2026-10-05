@@ -11,7 +11,8 @@
 @endphp
 
 <x-layouts.public :title="($division->seo_title ?: $division->name . ' | ' . config('moaum.company.short_name'))"
-                  :meta-description="$division->seo_description ?: $division->short_description">
+                  :meta-description="$division->seo_description ?: $division->short_description"
+                  :og-image="$division->hero_image ?: $division->cover_image">
 
     {{-- Division hero --}}
     <section class="relative bg-moaum-charcoal py-20 lg:py-28">

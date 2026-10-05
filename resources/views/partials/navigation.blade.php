@@ -74,6 +74,9 @@
 
             {{-- Desktop CTAs --}}
             <div class="hidden lg:flex items-center space-x-4">
+                <a href="{{ route('search') }}" class="p-2 text-slate-500 hover:text-moaum-red transition" aria-label="Search the site">
+                    <x-icon name="search" class="w-5 h-5" />
+                </a>
                 <a href="{{ route('requests.quote.create') }}" class="text-moaum-blue font-medium hover:text-moaum-red transition">Request a Quote</a>
                 <x-button href="{{ route('requests.service.create') }}" size="md">Request a Service</x-button>
             </div>
@@ -90,8 +93,19 @@
     <div x-show="mobileMenu" x-cloak x-transition class="lg:hidden bg-white border-t border-slate-200">
         <div class="px-4 pt-2 pb-6 space-y-1 max-h-[80vh] overflow-y-auto">
             @foreach ($nav as $item)
-                <a href="{{ isset($item['route']) ? route($item['route']) : '#' }}" class="block px-3 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 rounded-md">{{ $item['label'] }}</a>
+                @php
+                    $mobileRoute = $item['route'] ?? (! empty($item['mega']) ? 'businesses.index' : ($item['children'][0]['route'] ?? 'home'));
+                @endphp
+                <a href="{{ route($mobileRoute) }}" class="block px-3 py-3 text-base font-medium text-slate-700 hover:bg-slate-50 rounded-md">{{ $item['label'] }}</a>
+                @foreach ($item['children'] ?? [] as $child)
+                    @continue($loop->first)
+                    <a href="{{ route($child['route']) }}" class="block pl-8 pr-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-md">{{ $child['label'] }}</a>
+                @endforeach
             @endforeach
+            <form method="GET" action="{{ route('search') }}" class="pt-3" role="search">
+                <label for="mobile-search" class="sr-only">Search the site</label>
+                <input id="mobile-search" type="search" name="q" placeholder="Search the site…" class="form-input">
+            </form>
             <div class="pt-4 space-y-3">
                 <x-button href="{{ route('requests.service.create') }}" class="w-full">Request a Service</x-button>
                 <x-button href="{{ route('requests.quote.create') }}" variant="outline" class="w-full">Request a Quote</x-button>

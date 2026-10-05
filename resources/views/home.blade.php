@@ -4,6 +4,17 @@
     portfolio cards from business_divisions.
 --}}
 <x-layouts.public>
+    <x-json-ld :data="[
+        '@context' => 'https://schema.org',
+        '@type' => 'Organization',
+        'name' => config('moaum.company.name'),
+        'url' => url('/'),
+        'logo' => asset('images/logo.jpg'),
+        'parentOrganization' => ['@type' => 'CollegeOrUniversity', 'name' => config('moaum.company.parent')],
+        'email' => \App\Support\CompanyDetails::get('email'),
+        'telephone' => \App\Support\CompanyDetails::get('phone'),
+        'sameAs' => array_values(\App\Support\CompanyDetails::socialLinks()),
+    ]" />
 
     {{-- Hero --}}
     <section class="relative bg-gradient-to-br from-slate-50 via-white to-slate-100 overflow-hidden">

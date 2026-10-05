@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ProjectController as AdminProjectController;
 use App\Http\Controllers\Admin\QuoteRequestController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SearchController as AdminSearchController;
 use App\Http\Controllers\Admin\ServiceCategoryController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\ServiceRequestController;
@@ -34,6 +35,8 @@ use App\Http\Controllers\Public\GalleryController;
 use App\Http\Controllers\Public\NewsController;
 use App\Http\Controllers\Public\PageController;
 use App\Http\Controllers\Public\ProjectController;
+use App\Http\Controllers\Public\SearchController;
+use App\Http\Controllers\Public\SeoController;
 use App\Http\Controllers\Public\ServiceCatalogController;
 use App\Http\Controllers\Public\TrainingController;
 use App\Http\Controllers\Requests\RequestQuoteController;
@@ -61,6 +64,12 @@ Route::get('/services/{service:slug}', [ServiceCatalogController::class, 'show']
 // M4 — Project portfolio (PRD §14).
 Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
 Route::get('/projects/{project:slug}', [ProjectController::class, 'show'])->name('projects.show');
+
+// M11 — SEO and search (PRD §34/§37).
+Route::get('/search', SearchController::class)->middleware('throttle:30,1')->name('search');
+Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
+Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
+Route::get('/news/feed', [SeoController::class, 'newsFeed'])->name('news.feed');
 
 // M5 — News & updates (PRD §16).
 Route::get('/news', [NewsController::class, 'index'])->name('news.index');
@@ -294,6 +303,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
         Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
     });
+    Route::get('/search', AdminSearchController::class)->name('search');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'password'])->middleware('throttle:6,1')->name('profile.password');
