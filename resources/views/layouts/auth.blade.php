@@ -13,9 +13,8 @@
         <div class="w-full max-w-md">
 
             {{-- Brand --}}
-            <div class="flex items-center justify-center gap-3 mb-8">
-                <div class="w-10 h-10 bg-moaum-red rounded-lg flex items-center justify-center font-bold text-white text-lg">M</div>
-                <span class="font-display text-white text-xl font-bold tracking-tight">MOAUM Consultancy</span>
+            <div class="flex justify-center mb-8">
+                <x-brand-mark :href="route('home')" />
             </div>
 
             @yield('content')

@@ -19,9 +19,8 @@
         {{-- Sidebar --}}
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
                class="fixed inset-y-0 left-0 z-50 w-64 bg-moaum-charcoal text-white transition-transform duration-300 lg:static lg:translate-x-0 flex flex-col">
-            <div class="h-16 flex items-center px-6 border-b border-slate-700">
-                <div class="w-8 h-8 bg-moaum-red rounded flex items-center justify-center font-bold text-sm mr-3">M</div>
-                <span class="font-bold text-lg">MOAUM Admin</span>
+            <div class="h-16 flex items-center px-5 border-b border-slate-700">
+                <x-brand-mark size="sm" subtitle="Admin" :href="route('admin.dashboard')" />
             </div>
 
             <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1" aria-label="Admin navigation">

@@ -5,7 +5,7 @@
 
             {{-- Brand + social --}}
             <div>
-                <img src="{{ asset('images/logo.jpg') }}" alt="{{ config('moaum.company.name') }}" class="h-16 w-auto mb-6 brightness-0 invert">
+                <x-brand-mark size="lg" :href="route('home')" class="mb-6" />
                 <p class="text-slate-400 mb-6">The official business and investment arm of {{ config('moaum.company.parent') }}.</p>
                 @if ($social = \App\Support\CompanyDetails::socialLinks())
                     <div class="flex flex-wrap gap-3">
