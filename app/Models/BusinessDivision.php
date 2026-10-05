@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Casts\RichTextCast;
 use App\Enums\DivisionStatus;
 use App\Models\Concerns\HasUniqueSlug;
+use App\Support\PublicNavigation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -100,6 +101,13 @@ class BusinessDivision extends Model
     }
 
     /* ------------------------------- Helpers ----------------------------- */
+
+    protected static function booted(): void
+    {
+        // The header/footer division list is cached (App\Support\PublicNavigation).
+        static::saved(fn () => PublicNavigation::forget());
+        static::deleted(fn () => PublicNavigation::forget());
+    }
 
     public function isAvailable(): bool
     {

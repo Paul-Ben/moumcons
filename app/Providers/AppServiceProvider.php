@@ -31,6 +31,7 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -49,6 +50,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if ($this->app->environment('production') && config('moaum.force_https')) {
+            URL::forceScheme('https');
+        }
+
         /*
          * Audit trail (PRD §32). Triage models are observed for create /
          * update / delete; authentication events are logged directly.

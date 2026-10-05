@@ -33,7 +33,7 @@
             <div>
                 <h4 class="text-white font-semibold mb-4">Business Divisions</h4>
                 <ul class="space-y-3">
-                    @foreach (\App\Models\BusinessDivision::query()->publiclyVisible()->ordered()->take(5)->get() as $division)
+                    @foreach (\App\Support\PublicNavigation::divisions()->take(5) as $division)
                         <li><a href="{{ route('businesses.show', $division) }}" class="hover:text-moaum-red transition">{{ $division->name }}</a></li>
                     @endforeach
                     <li><a href="{{ route('businesses.index') }}" class="text-moaum-blue transition">View All →</a></li>

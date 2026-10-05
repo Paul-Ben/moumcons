@@ -4,8 +4,7 @@
     $nav = config('moaum.nav.primary');
     $groups = config('moaum.nav.business_groups');
     // Mega menu + footer division links come from the database (Module 2).
-    $divisionsByCategory = \App\Models\BusinessDivision::query()
-        ->publiclyVisible()->ordered()->get()->groupBy('category');
+    $divisionsByCategory = \App\Support\PublicNavigation::divisions()->groupBy('category');
 @endphp
 
 <header class="sticky top-0 z-50 bg-white shadow-sm border-b border-slate-200" x-data="{ mobileMenu: false }">
@@ -38,7 +37,7 @@
                                             <h4 class="font-semibold text-moaum-{{ $group['accent'] }} mb-3 text-sm uppercase tracking-wide">{{ $group['heading'] }}</h4>
                                             <ul class="space-y-2 text-sm">
                                                 @foreach (($divisionsByCategory[$group['heading']] ?? collect())->take(6) as $business)
-                                                    <li><a href="{{ route('businesses.index', ['division' => $business->slug]) }}" class="text-slate-600 hover:text-moaum-blue">{{ $business->name }}</a></li>
+                                                    <li><a href="{{ route('businesses.show', $business) }}" class="text-slate-600 hover:text-moaum-blue">{{ $business->name }}</a></li>
                                                 @endforeach
                                             </ul>
                                         </div>

@@ -4,6 +4,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Force HTTPS URLs in production (PRD §32). Disable only if TLS is
+    | terminated somewhere that cannot pass X-Forwarded-Proto.
+    |--------------------------------------------------------------------------
+    */
+    'force_https' => env('FORCE_HTTPS', true),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Backups (PRD §41) — `php artisan moaum:backup`, scheduled daily.
+    | MOAUM_BACKUP_DISK names a filesystems.php disk (e.g. "s3") to copy each
+    | archive off the server; leave empty to keep local copies only.
+    |--------------------------------------------------------------------------
+    */
+    'backups' => [
+        'disk' => env('MOAUM_BACKUP_DISK'),
+        'keep' => (int) env('MOAUM_BACKUP_KEEP', 14),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Company details (single source of truth for header/footer/contact)
     |--------------------------------------------------------------------------
     | Values marked CLIENT_TO_PROVIDE are placeholders awaiting client input

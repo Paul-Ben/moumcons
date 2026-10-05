@@ -28,3 +28,9 @@ Artisan::command('news:publish-scheduled', function () {
 })->purpose('Mark scheduled news articles whose date has passed as published');
 
 Schedule::command('news:publish-scheduled')->everyFiveMinutes()->withoutOverlapping();
+
+// PRD §41 — nightly backup of the database and uploaded files.
+Schedule::command('moaum:backup')->dailyAt('02:00')->withoutOverlapping()->onOneServer();
+
+// Housekeeping: expired password-reset tokens.
+Schedule::command('auth:clear-resets')->daily();

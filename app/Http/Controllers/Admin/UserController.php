@@ -121,6 +121,11 @@ class UserController extends Controller
 
             if (array_key_exists('is_active', $data)) {
                 $user->is_active = (bool) $data['is_active'];
+
+                // Invalidate "remember me" cookies as well as sessions.
+                if ($user->isDirty('is_active') && ! $user->is_active) {
+                    $user->setRememberToken(Str::random(60));
+                }
             }
 
             if (filled($data['password'] ?? null)) {
