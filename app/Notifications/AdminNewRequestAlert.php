@@ -26,9 +26,16 @@ class AdminNewRequestAlert extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
+        $label = match ($this->type) {
+            'quote' => 'quote request',
+            'enquiry' => 'enquiry',
+            'application' => 'job application',
+            default => 'service request',
+        };
+
         return (new MailMessage)
-            ->subject("New {$this->type} request: {$this->reference}")
-            ->line("{$this->requesterName} submitted a ".ucfirst($this->type)." request for {$this->divisionName}.")
+            ->subject('New '.$label.': '.$this->reference)
+            ->line("{$this->requesterName} submitted a new {$label} ({$this->divisionName}).")
             ->action('Open in admin', $this->url ?? route('admin.dashboard'));
     }
 }

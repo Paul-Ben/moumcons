@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\EnquiryController;
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
 use App\Http\Controllers\Admin\GalleryController as AdminGalleryController;
+use App\Http\Controllers\Admin\JobApplicationController;
+use App\Http\Controllers\Admin\JobOpeningController;
 use App\Http\Controllers\Admin\LeadershipMemberController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\NewsCategoryController;
@@ -20,6 +22,7 @@ use App\Http\Controllers\Admin\ServiceRequestController;
 use App\Http\Controllers\Admin\TrainingProgrammeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\BusinessController;
+use App\Http\Controllers\Public\CareerController;
 use App\Http\Controllers\Public\ContactController;
 use App\Http\Controllers\Public\DownloadController;
 use App\Http\Controllers\Public\FaqController;
@@ -113,11 +116,12 @@ foreach ([
 }
 Route::get('/pages/{page:slug}', [PageController::class, 'show'])->name('pages.show');
 
-foreach ([
-    'careers.index' => '/careers',
-] as $name => $uri) {
-    Route::view($uri, 'placeholder')->name($name);
-}
+// M9 — Careers (PRD §17).
+Route::get('/careers', [CareerController::class, 'index'])->name('careers.index');
+Route::get('/careers/{job:slug}', [CareerController::class, 'show'])->name('careers.show');
+Route::post('/careers/{job:slug}/apply', [CareerController::class, 'apply'])
+    ->middleware('throttle:5,1')
+    ->name('careers.apply');
 
 /*
 |--------------------------------------------------------------------------
@@ -259,6 +263,17 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     });
     Route::middleware('permission:view-gallery')->group(function () {
         Route::resource('galleries', AdminGalleryController::class)->except('show');
+    });
+
+    // M9 — Careers (PRD §17). Applications are personal data with their own permissions.
+    Route::middleware('permission:view-careers')->group(function () {
+        Route::resource('jobs', JobOpeningController::class)->except('show');
+    });
+    Route::middleware('permission:view-applications')->group(function () {
+        Route::get('/applications', [JobApplicationController::class, 'index'])->name('applications.index');
+        Route::get('/applications/{application}', [JobApplicationController::class, 'show'])->name('applications.show');
+        Route::patch('/applications/{application}', [JobApplicationController::class, 'update'])->name('applications.update');
+        Route::get('/applications/{application}/cv', [JobApplicationController::class, 'cv'])->name('applications.cv');
     });
 
     // M2 — Media library (PRD §19/§22). Per-action checks live in MediaPolicy;

@@ -53,6 +53,9 @@ final class Rbac
             'news' => ['view-news', 'create-news', 'edit-news', 'publish-news', 'delete-news'],
             'training' => ['view-training', 'create-training', 'edit-training', 'publish-training', 'delete-training'],
             'careers' => ['view-careers', 'create-careers', 'edit-careers', 'publish-careers', 'delete-careers'],
+            // Applications hold applicants' personal data and CVs (PRD §33), so
+            // reading them is separate from managing the job adverts.
+            'applications' => ['view-applications', 'update-applications'],
             'downloads' => ['view-downloads', 'create-downloads', 'edit-downloads', 'publish-downloads', 'delete-downloads'],
             'faqs' => ['view-faqs', 'create-faqs', 'edit-faqs', 'publish-faqs', 'delete-faqs'],
             'gallery' => ['view-gallery', 'create-gallery', 'edit-gallery', 'publish-gallery', 'delete-gallery'],

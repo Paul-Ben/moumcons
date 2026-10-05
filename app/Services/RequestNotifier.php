@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Enquiry;
+use App\Models\JobApplication;
 use App\Models\QuoteRequest;
 use App\Models\ServiceRequest;
 use App\Models\User;
@@ -69,6 +70,19 @@ class RequestNotifier
     public function enquiryAssigned(?User $assignee, Enquiry $enquiry): void
     {
         $assignee?->notify(new EnquiryAssigned($enquiry));
+    }
+
+    /** PRD §17/§25 "New application" — receipt for the applicant, alert for HR staff. */
+    public function applicationSubmitted(JobApplication $application): void
+    {
+        Notification::route('mail', $application->email)->notify(
+            new RequestSubmitted('application', $application->reference, $application->job->title)
+        );
+
+        $this->alertTriageUsers(
+            new AdminNewRequestAlert('application', $application->reference, $application->name, $application->job->title, route('admin.applications.show', $application)),
+            ['view-applications']
+        );
     }
 
     /** PRD §12/§13/§25 — a service or quote request has been handed to staff. */

@@ -8,6 +8,8 @@ use App\Models\Document;
 use App\Models\Enquiry;
 use App\Models\Faq;
 use App\Models\Gallery;
+use App\Models\JobApplication;
+use App\Models\JobOpening;
 use App\Models\LeadershipMember;
 use App\Models\Media;
 use App\Models\NewsArticle;
@@ -54,9 +56,10 @@ class AppServiceProvider extends ServiceProvider
         Enquiry::observe(AuditableTriageObserver::class);
         ServiceRequest::observe(AuditableTriageObserver::class);
         QuoteRequest::observe(AuditableTriageObserver::class);
+        JobApplication::observe(AuditableTriageObserver::class);
 
         // CMS content: every admin create/edit/delete is diffed into the log.
-        foreach ([Media::class, BusinessDivision::class, DivisionCapability::class, Service::class, ServiceCategory::class, Project::class, NewsArticle::class, NewsCategory::class, TrainingProgramme::class, Page::class, LeadershipMember::class, Document::class, Faq::class, Gallery::class] as $content) {
+        foreach ([Media::class, BusinessDivision::class, DivisionCapability::class, Service::class, ServiceCategory::class, Project::class, NewsArticle::class, NewsCategory::class, TrainingProgramme::class, Page::class, LeadershipMember::class, Document::class, Faq::class, Gallery::class, JobOpening::class] as $content) {
             $content::observe(AuditableContentObserver::class);
         }
 

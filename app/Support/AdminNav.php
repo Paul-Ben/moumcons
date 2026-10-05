@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Enquiry;
+use App\Models\JobApplication;
 use App\Models\QuoteRequest;
 use App\Models\ServiceRequest;
 use App\Models\User;
@@ -75,6 +76,17 @@ final class AdminNav
                 'permission' => 'view-faqs',
             ],
             [
+                'label' => 'Careers', 'icon' => 'briefcase',
+                'route' => 'admin.jobs.index', 'active' => 'admin.jobs.*',
+                'permission' => 'view-careers',
+            ],
+            [
+                'label' => 'Applications', 'icon' => 'users',
+                'route' => 'admin.applications.index', 'active' => 'admin.applications.*',
+                'permission' => 'view-applications',
+                'count' => 'applications',
+            ],
+            [
                 'label' => 'Enquiries', 'icon' => 'mail',
                 'route' => 'admin.enquiries.index', 'active' => 'admin.enquiries.*',
                 'permission' => 'view-enquiries',
@@ -121,6 +133,7 @@ final class AdminNav
                 'enquiries' => self::openEnquiryCount(),
                 'service-requests' => ServiceRequest::query()->open()->count(),
                 'quotes' => QuoteRequest::query()->actionable()->count(),
+                'applications' => JobApplication::query()->where('status', 'received')->count(),
                 'all' => self::openTriageCount(),
                 default => null,
             };

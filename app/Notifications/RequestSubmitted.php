@@ -19,7 +19,7 @@ class RequestSubmitted extends Notification
     use Queueable;
 
     /**
-     * @param  string  $type  'service' | 'quote' | 'enquiry'
+     * @param  string  $type  'service' | 'quote' | 'enquiry' | 'application'
      */
     public function __construct(
         public readonly string $type,
@@ -37,6 +37,7 @@ class RequestSubmitted extends Notification
         $label = match ($this->type) {
             'quote' => 'Quote Request',
             'enquiry' => 'Enquiry',
+            'application' => 'Job Application',
             default => 'Service Request',
         };
 
@@ -46,7 +47,7 @@ class RequestSubmitted extends Notification
             ->line("Your {$label} regarding \"{$this->projectName}\" has been logged as reference {$this->reference}.")
             ->line('Our team will review it and get back to you shortly.');
 
-        if ($this->type === 'enquiry') {
+        if (in_array($this->type, ['enquiry', 'application'], true)) {
             return $mail
                 ->line('Please quote this reference in any reply so we can find your enquiry quickly.');
         }
