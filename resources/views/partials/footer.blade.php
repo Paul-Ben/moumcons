@@ -32,7 +32,7 @@
                 <h4 class="text-white font-semibold mb-4">Business Divisions</h4>
                 <ul class="space-y-3">
                     @foreach (\App\Models\BusinessDivision::query()->publiclyVisible()->ordered()->take(5)->get() as $division)
-                        <li><a href="{{ route('businesses.index', ['division' => $division->slug]) }}" class="hover:text-moaum-red transition">{{ $division->name }}</a></li>
+                        <li><a href="{{ route('businesses.show', $division) }}" class="hover:text-moaum-red transition">{{ $division->name }}</a></li>
                     @endforeach
                     <li><a href="{{ route('businesses.index') }}" class="text-moaum-blue transition">View All →</a></li>
                 </ul>
@@ -78,8 +78,8 @@
         <div class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p class="text-slate-500 text-sm">&copy; {{ date('Y') }} {{ config('moaum.company.name') }}. All rights reserved.</p>
             <div class="flex space-x-6 mt-4 md:mt-0">
-                <a href="#" class="text-slate-500 hover:text-white text-sm transition">Privacy Policy</a>
-                <a href="#" class="text-slate-500 hover:text-white text-sm transition">Terms of Service</a>
+                <a href="{{ route('legal.privacy') }}" class="text-slate-500 hover:text-white text-sm transition">Privacy Policy</a>
+                <a href="{{ route('legal.terms') }}" class="text-slate-500 hover:text-white text-sm transition">Terms of Use</a>
             </div>
         </div>
     </div>

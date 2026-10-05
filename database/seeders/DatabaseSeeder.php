@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
             AdminUserSeeder::class,
             ContentSeeder::class,
+            PageSeeder::class,
         ]);
 
         if (app()->environment('local')) {

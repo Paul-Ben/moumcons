@@ -48,6 +48,24 @@ final class RichText
         return (string) self::sanitize($value);
     }
 
+    /**
+     * Drop blocks still holding a CLIENT_TO_PROVIDE marker — and the heading
+     * directly above one — so unconfirmed copy never reaches visitors. The
+     * admin flags these pages instead.
+     */
+    public static function withoutPlaceholders(?string $html): ?string
+    {
+        if ($html === null || ! str_contains($html, 'CLIENT_TO_PROVIDE')) {
+            return $html;
+        }
+
+        return preg_replace(
+            '#(<h[1-3][^>]*>[^<]*</h[1-3]>\s*)?<(div|p|li)[^>]*>[^<]*CLIENT_TO_PROVIDE.*?</\2>#s',
+            '',
+            $html
+        );
+    }
+
     /** Plain-text version, e.g. for meta descriptions and excerpts. */
     public static function toPlainText(?string $html): string
     {

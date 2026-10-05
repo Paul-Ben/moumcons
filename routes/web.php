@@ -4,9 +4,11 @@ use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\BusinessDivisionController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EnquiryController;
+use App\Http\Controllers\Admin\LeadershipMemberController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\NewsCategoryController;
 use App\Http\Controllers\Admin\NewsController as AdminNewsController;
+use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Admin\ProjectController as AdminProjectController;
 use App\Http\Controllers\Admin\QuoteRequestController;
 use App\Http\Controllers\Admin\ServiceCategoryController;
@@ -17,6 +19,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\BusinessController;
 use App\Http\Controllers\Public\ContactController;
 use App\Http\Controllers\Public\NewsController;
+use App\Http\Controllers\Public\PageController;
 use App\Http\Controllers\Public\ProjectController;
 use App\Http\Controllers\Public\ServiceCatalogController;
 use App\Http\Controllers\Public\TrainingController;
@@ -81,11 +84,20 @@ Route::post('/track-request', [TrackRequestController::class, 'show'])
 
 // Placeholder routes referenced by config('moaum.nav') so the nav can be
 // wired up progressively in later modules without broken links.
+// M7 — CMS pages (PRD §9/§22). System pages resolve by key (App\Models\Page::SYSTEM).
 foreach ([
-    'about.profile' => '/about',
-    'about.mission' => '/about/mission-vision',
-    'about.leadership' => '/about/leadership',
-    'about.university' => '/about/university-relationship',
+    'about.profile' => ['/about', 'about'],
+    'about.mission' => ['/about/mission-vision', 'mission-vision'],
+    'about.leadership' => ['/about/leadership', 'leadership'],
+    'about.university' => ['/about/university-relationship', 'university-relationship'],
+    'legal.privacy' => ['/privacy-policy', 'privacy-policy'],
+    'legal.terms' => ['/terms', 'terms'],
+] as $name => [$uri, $key]) {
+    Route::get($uri, [PageController::class, 'system'])->defaults('key', $key)->name($name);
+}
+Route::get('/pages/{page:slug}', [PageController::class, 'show'])->name('pages.show');
+
+foreach ([
     'careers.index' => '/careers',
 ] as $name => $uri) {
     Route::view($uri, 'placeholder')->name($name);
@@ -213,6 +225,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     // M6 — Training (PRD §15, /admin/training in §31).
     Route::middleware('permission:view-training')->group(function () {
         Route::resource('training', TrainingProgrammeController::class)->except('show')->parameters(['training' => 'programme']);
+    });
+
+    // M7 — Pages and the leadership team (PRD §9/§22).
+    Route::middleware('permission:view-pages')->group(function () {
+        Route::resource('pages', AdminPageController::class)->except('show');
+        Route::resource('leadership', LeadershipMemberController::class)->except('show')->parameters(['leadership' => 'member']);
     });
 
     // M2 — Media library (PRD §19/§22). Per-action checks live in MediaPolicy;

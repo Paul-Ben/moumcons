@@ -40,6 +40,11 @@ final class AdminNav
                 'permission' => 'view-services',
             ],
             [
+                'label' => 'Pages', 'icon' => 'folder',
+                'route' => 'admin.pages.index', 'active' => ['admin.pages.*', 'admin.leadership.*'],
+                'permission' => 'view-pages',
+            ],
+            [
                 'label' => 'Projects', 'icon' => 'hard-hat',
                 'route' => 'admin.projects.index', 'active' => 'admin.projects.*',
                 'permission' => 'view-projects',
