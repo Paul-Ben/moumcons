@@ -147,20 +147,4 @@
             </ul>
         @endif
     </div>
-
-    {{-- Counters with no data source yet are listed, not faked as zero. --}}
-    <div class="card border-dashed">
-        <h2 class="font-display font-bold text-moaum-charcoal mb-1">Coming with the next modules</h2>
-        <p class="text-sm text-slate-500 mb-4">
-            These PRD §24 counters stay hidden until their module ships, so a zero here never reads as "none exist".
-        </p>
-        <div class="flex flex-wrap gap-2">
-            @foreach ($pendingModules as $pending)
-                <span class="inline-flex items-center gap-2 text-xs font-medium text-slate-500 bg-slate-100 rounded-full px-3 py-1.5">
-                    {{ $pending['label'] }}
-                    <span class="text-slate-400">{{ $pending['module'] }}</span>
-                </span>
-            @endforeach
-        </div>
-    </div>
 </x-layouts.admin>

@@ -6,6 +6,7 @@ use App\Models\BusinessDivision;
 use App\Models\NewsArticle;
 use App\Models\Project;
 use App\Models\Setting;
+use App\Models\TrainingProgramme;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -47,6 +48,14 @@ class HomeController extends Controller
                 ->featured()
                 ->with('division:id,name,slug')
                 ->ordered()
+                ->take(3)
+                ->get(),
+            // PRD §8 section 9 — featured first, then the soonest upcoming.
+            'trainingSpotlight' => TrainingProgramme::query()
+                ->published()
+                ->current()
+                ->orderByDesc('featured')
+                ->chronological()
                 ->take(3)
                 ->get(),
             // PRD §8 section 10.

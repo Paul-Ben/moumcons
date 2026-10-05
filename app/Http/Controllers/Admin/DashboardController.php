@@ -14,6 +14,7 @@ use App\Models\Project;
 use App\Models\QuoteRequest;
 use App\Models\Service;
 use App\Models\ServiceRequest;
+use App\Models\TrainingProgramme;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -54,9 +55,6 @@ class DashboardController extends Controller
                 ->latest()
                 ->limit(8)
                 ->get(),
-            'pendingModules' => [
-                ['label' => 'Training programmes', 'module' => 'Module 9'],
-            ],
         ]);
     }
 
@@ -127,6 +125,13 @@ class DashboardController extends Controller
                 'hint' => NewsArticle::query()->where('status', 'review')->count().' awaiting review',
                 'icon' => 'newspaper',
                 'tone' => 'blue',
+            ],
+            [
+                'label' => 'Training programmes',
+                'value' => TrainingProgramme::query()->published()->current()->count(),
+                'hint' => 'upcoming or running',
+                'icon' => 'graduation-cap',
+                'tone' => 'green',
             ],
             [
                 'label' => 'Staff users',

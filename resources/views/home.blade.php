@@ -158,6 +158,26 @@
         </section>
     @endif
 
+    {{-- Training spotlight (PRD §8 section 9) --}}
+    @if ($trainingSpotlight->isNotEmpty())
+        <section class="py-20 bg-white">
+            <x-container>
+                <div class="flex flex-wrap items-end justify-between gap-4 mb-12">
+                    <div>
+                        <p class="eyebrow mb-2">Training Spotlight</p>
+                        <h2 class="font-display text-3xl lg:text-4xl font-bold text-moaum-charcoal">Build Skills With MOAUM</h2>
+                    </div>
+                    <a href="{{ route('training.index') }}" class="btn-outline">All programmes <x-icon name="arrow-right" class="w-4 h-4" /></a>
+                </div>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    @foreach ($trainingSpotlight as $programme)
+                        <x-training-card :programme="$programme" />
+                    @endforeach
+                </div>
+            </x-container>
+        </section>
+    @endif
+
     {{-- Latest news (PRD §8 section 10) --}}
     @if ($latestNews->isNotEmpty())
         <section class="py-20 bg-slate-50">

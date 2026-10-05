@@ -45,6 +45,11 @@ final class AdminNav
                 'permission' => 'view-projects',
             ],
             [
+                'label' => 'Training', 'icon' => 'graduation-cap',
+                'route' => 'admin.training.index', 'active' => 'admin.training.*',
+                'permission' => 'view-training',
+            ],
+            [
                 'label' => 'News', 'icon' => 'newspaper',
                 'route' => 'admin.news.index', 'active' => ['admin.news.*', 'admin.news-categories.*'],
                 'permission' => 'view-news',

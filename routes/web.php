@@ -12,12 +12,14 @@ use App\Http\Controllers\Admin\QuoteRequestController;
 use App\Http\Controllers\Admin\ServiceCategoryController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\ServiceRequestController;
+use App\Http\Controllers\Admin\TrainingProgrammeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\BusinessController;
 use App\Http\Controllers\Public\ContactController;
 use App\Http\Controllers\Public\NewsController;
 use App\Http\Controllers\Public\ProjectController;
 use App\Http\Controllers\Public\ServiceCatalogController;
+use App\Http\Controllers\Public\TrainingController;
 use App\Http\Controllers\Requests\RequestQuoteController;
 use App\Http\Controllers\Requests\RequestServiceController;
 use App\Http\Controllers\Requests\TrackRequestController;
@@ -48,6 +50,13 @@ Route::get('/projects/{project:slug}', [ProjectController::class, 'show'])->name
 Route::get('/news', [NewsController::class, 'index'])->name('news.index');
 Route::get('/news/{article:slug}', [NewsController::class, 'show'])->name('news.show');
 
+// M6 — Training programmes (PRD §15). Interest registrations become enquiries.
+Route::get('/training', [TrainingController::class, 'index'])->name('training.index');
+Route::get('/training/{programme:slug}', [TrainingController::class, 'show'])->name('training.show');
+Route::post('/training/{programme:slug}/interest', [TrainingController::class, 'registerInterest'])
+    ->middleware('throttle:6,1')
+    ->name('training.interest');
+
 // Module 7 — Customer engagement: service + quote requests, public tracking
 // (PRD §12/§13). Forms are public; protected by rate limiting + honeypot.
 Route::get('/request-service', [RequestServiceController::class, 'create'])->name('requests.service.create');
@@ -77,7 +86,6 @@ foreach ([
     'about.mission' => '/about/mission-vision',
     'about.leadership' => '/about/leadership',
     'about.university' => '/about/university-relationship',
-    'training.index' => '/training',
     'careers.index' => '/careers',
 ] as $name => $uri) {
     Route::view($uri, 'placeholder')->name($name);
@@ -200,6 +208,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::resource('news-categories', NewsCategoryController::class)
             ->only(['index', 'store', 'update', 'destroy'])
             ->parameters(['news-categories' => 'category']);
+    });
+
+    // M6 — Training (PRD §15, /admin/training in §31).
+    Route::middleware('permission:view-training')->group(function () {
+        Route::resource('training', TrainingProgrammeController::class)->except('show')->parameters(['training' => 'programme']);
     });
 
     // M2 — Media library (PRD §19/§22). Per-action checks live in MediaPolicy;

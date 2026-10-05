@@ -10,6 +10,7 @@ use App\Enums\ServiceStatus;
 use App\Models\AuditLog;
 use App\Models\BusinessDivision;
 use App\Models\Enquiry;
+use App\Models\Project;
 use App\Models\QuoteRequest;
 use App\Models\Service;
 use App\Models\ServiceRequest;
@@ -179,14 +180,16 @@ class DashboardTest extends TestCase
             ->assertSee(route('admin.audit-logs.index'), escape: false);
     }
 
-    public function test_unbuilt_modules_are_listed_instead_of_shown_as_zero(): void
+    public function test_content_module_counters_are_shown(): void
     {
         $admin = $this->superAdmin();
+        Project::factory()->count(2)->create();
 
         $this->actingAs($admin)->get(route('admin.dashboard'))
             ->assertOk()
-            ->assertSee('Coming with the next modules')
+            ->assertDontSee('Coming with the next modules')
             ->assertSee('Projects')
+            ->assertSee('2 published')
             ->assertSee('News articles')
             ->assertSee('Training programmes');
     }
