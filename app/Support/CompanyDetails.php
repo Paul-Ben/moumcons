@@ -2,14 +2,16 @@
 
 namespace App\Support;
 
+use App\Models\Setting;
+
 /**
  * Company contact details for public display (PRD §20).
  *
- * config/moaum.php holds these values until the Settings table takes over in a
- * later module. Several are deliberately seeded as CLIENT_TO_PROVIDE while the
- * client supplies real data, and printing that marker on a public page would be
- * worse than showing nothing — so every read goes through here, which returns
- * null for placeholders and lets the view drop the row entirely.
+ * Values come from the Settings table (edited under Admin → Settings), falling
+ * back to config/moaum.php. Several defaults are deliberately CLIENT_TO_PROVIDE
+ * while the client supplies real data, and printing that marker on a public
+ * page would be worse than showing nothing — so every read goes through here,
+ * which returns null for placeholders and lets the view drop the row entirely.
  */
 final class CompanyDetails
 {
@@ -34,7 +36,8 @@ final class CompanyDetails
      */
     public static function get(string $key, ?string $default = null): ?string
     {
-        $value = config('moaum.company.'.$key);
+        // Setting::get() falls back to config('moaum.company.*') for contact.* keys.
+        $value = Setting::get('contact.'.$key) ?? config('moaum.company.'.$key);
 
         if (! is_string($value)) {
             return $default;
@@ -55,17 +58,23 @@ final class CompanyDetails
     }
 
     /**
-     * Social links, with placeholder and empty entries removed.
+     * Social links, with placeholder, "#" and empty entries removed.
      *
-     * @return array<string, string>
+     * @return array<string, string> network => URL
      */
     public static function socialLinks(): array
     {
-        $social = config('moaum.company.social', []);
+        $links = [];
 
-        return is_array($social)
-            ? array_filter($social, fn ($url) => is_string($url) && ! self::isPlaceholder(trim($url)))
-            : [];
+        foreach (array_keys(SiteSettings::SOCIAL_NETWORKS) as $network) {
+            $url = Setting::get('social.'.$network) ?? config('moaum.company.social.'.$network);
+
+            if (is_string($url) && preg_match('#^https?://#i', trim($url)) && ! self::isPlaceholder($url)) {
+                $links[$network] = trim($url);
+            }
+        }
+
+        return $links;
     }
 
     private static function isPlaceholder(string $value): bool

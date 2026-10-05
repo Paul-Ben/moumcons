@@ -30,21 +30,30 @@
                     AppServiceProvider: permission-filtered, route-aware, and it
                     flags modules that have not shipped instead of linking to a 404.
                 --}}
+                @php
+                    $currentSection = null;
+                @endphp
                 @foreach ($adminNav ?? [] as $item)
+                    @if (($item['section'] ?? null) !== $currentSection)
+                        @php
+                            $currentSection = $item['section'];
+                        @endphp
+                        <p class="px-3 pt-5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500">{{ $currentSection }}</p>
+                    @endif
                     @include('partials.admin-nav-item', ['item' => $item])
                 @endforeach
             </nav>
 
             <div class="p-4 border-t border-slate-700">
-                <div class="flex items-center gap-3">
+                <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-3 rounded-lg -m-2 p-2 hover:bg-slate-800 transition" title="My profile">
                     <div class="w-10 h-10 rounded-full bg-slate-600 flex items-center justify-center text-sm font-bold">
                         {{ auth()->check() ? strtoupper(substr(auth()->user()->name, 0, 1)) : 'MA' }}
                     </div>
                     <div>
                         <p class="text-sm font-semibold text-white">{{ auth()->user()->name ?? 'Administrator' }}</p>
-                        <p class="text-xs text-slate-400">{{ auth()->user()?->getRoleNames()->first() ?? 'Super Administrator' }}</p>
+                        <p class="text-xs text-slate-400">{{ auth()->user()?->getRoleNames()->first() ?? 'Staff' }}</p>
                     </div>
-                </div>
+                </a>
             </div>
         </aside>
 

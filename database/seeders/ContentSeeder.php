@@ -50,8 +50,10 @@ class ContentSeeder extends Seeder
             ['home.cta.description', 'homepage', "Let's discuss how our diverse business capabilities can meet your needs"],
         ];
 
+        // firstOrCreate, not updateOrCreate: re-running db:seed must never
+        // overwrite values staff have since edited under Admin → Settings.
         foreach ($settings as [$key, $group, $value]) {
-            Setting::updateOrCreate(['key' => $key], [
+            Setting::firstOrCreate(['key' => $key], [
                 'group' => $group,
                 'type' => str_starts_with($value, '[') ? 'json' : 'text',
                 'value' => $value,

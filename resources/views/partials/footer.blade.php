@@ -7,14 +7,16 @@
             <div>
                 <img src="{{ asset('images/logo.jpg') }}" alt="{{ config('moaum.company.name') }}" class="h-16 w-auto mb-6 brightness-0 invert">
                 <p class="text-slate-400 mb-6">The official business and investment arm of {{ config('moaum.company.parent') }}.</p>
-                <div class="flex space-x-4">
-                    @foreach (['facebook', 'twitter', 'linkedin'] as $network)
-                        <a href="{{ config('moaum.company.social.'.$network) }}" aria-label="{{ ucfirst($network) }}"
-                           class="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-moaum-{{ $network === 'facebook' ? 'red' : 'blue' }} transition">
-                            <x-icon :name="$network" class="w-5 h-5" />
-                        </a>
-                    @endforeach
-                </div>
+                @if ($social = \App\Support\CompanyDetails::socialLinks())
+                    <div class="flex flex-wrap gap-3">
+                        @foreach ($social as $network => $url)
+                            <a href="{{ $url }}" target="_blank" rel="noopener" aria-label="{{ \App\Support\SiteSettings::SOCIAL_NETWORKS[$network] }}"
+                               class="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-moaum-blue transition">
+                                <x-icon :name="$network" class="w-5 h-5" />
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
             {{-- Quick links --}}

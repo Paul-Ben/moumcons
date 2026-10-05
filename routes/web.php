@@ -14,12 +14,16 @@ use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\NewsCategoryController;
 use App\Http\Controllers\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\Admin\PageController as AdminPageController;
+use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ProjectController as AdminProjectController;
 use App\Http\Controllers\Admin\QuoteRequestController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ServiceCategoryController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\ServiceRequestController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TrainingProgrammeController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\BusinessController;
 use App\Http\Controllers\Public\CareerController;
@@ -275,6 +279,24 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::patch('/applications/{application}', [JobApplicationController::class, 'update'])->name('applications.update');
         Route::get('/applications/{application}/cv', [JobApplicationController::class, 'cv'])->name('applications.cv');
     });
+
+    // M10 — Users, roles, site settings (PRD §23/§31) and the signed-in user's profile.
+    Route::middleware('permission:manage-users')->group(function () {
+        Route::resource('users', UserController::class)->except(['show', 'destroy']);
+        Route::post('/users/{user}/password-reset', [UserController::class, 'sendPasswordReset'])
+            ->middleware('throttle:6,1')
+            ->name('users.password-reset');
+    });
+    Route::middleware('permission:manage-roles')->group(function () {
+        Route::resource('roles', RoleController::class)->except('show');
+    });
+    Route::middleware('permission:manage-settings')->group(function () {
+        Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
+        Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+    });
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'password'])->middleware('throttle:6,1')->name('profile.password');
 
     // M2 — Media library (PRD §19/§22). Per-action checks live in MediaPolicy;
     // the JSON variants back the media picker and Trix uploads.

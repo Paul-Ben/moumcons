@@ -72,6 +72,14 @@
                 @endif
             </div>
 
+            {{-- PRD §20 map — only Google Maps embed URLs are accepted by Settings. --}}
+            @if ($details['map'])
+                <div class="card p-0 overflow-hidden">
+                    <iframe src="{{ $details['map'] }}" title="Map showing our location" class="w-full h-64 border-0" loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+                </div>
+            @endif
+
             {{-- Alternative flows: not every need is an enquiry. --}}
             <div class="card p-6">
                 <h2 class="font-display text-lg font-bold text-moaum-charcoal mb-2">Looking for something specific?</h2>

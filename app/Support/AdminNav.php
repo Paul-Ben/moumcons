@@ -24,101 +24,44 @@ final class AdminNav
      */
     public static function items(?User $user): array
     {
-        $items = [
-            [
-                'label' => 'Dashboard', 'icon' => 'layout-grid',
-                'route' => 'admin.dashboard', 'active' => 'admin.dashboard',
-                'permission' => 'view-admin-dashboard',
+        $sections = [
+            null => [
+                ['label' => 'Dashboard', 'icon' => 'layout-grid', 'route' => 'admin.dashboard', 'active' => 'admin.dashboard', 'permission' => 'view-admin-dashboard'],
             ],
-            [
-                'label' => 'Business Divisions', 'icon' => 'building',
-                'route' => 'admin.divisions.index', 'active' => 'admin.divisions.*',
-                'permission' => 'view-divisions',
+            'Customer engagement' => [
+                ['label' => 'Enquiries', 'icon' => 'mail', 'route' => 'admin.enquiries.index', 'active' => 'admin.enquiries.*', 'permission' => 'view-enquiries', 'count' => 'enquiries'],
+                ['label' => 'Service Requests', 'icon' => 'file-text', 'route' => 'admin.service-requests.index', 'active' => 'admin.service-requests.*', 'permission' => 'view-service-requests', 'count' => 'service-requests'],
+                ['label' => 'Quote Requests', 'icon' => 'sliders-horizontal', 'route' => 'admin.quote-requests.index', 'active' => 'admin.quote-requests.*', 'permission' => 'view-quotes', 'count' => 'quotes'],
+                ['label' => 'Applications', 'icon' => 'users', 'route' => 'admin.applications.index', 'active' => 'admin.applications.*', 'permission' => 'view-applications', 'count' => 'applications'],
             ],
-            [
-                'label' => 'Services', 'icon' => 'briefcase',
-                'route' => 'admin.services.index', 'active' => ['admin.services.*', 'admin.service-categories.*'],
-                'permission' => 'view-services',
+            'Content' => [
+                ['label' => 'Business Divisions', 'icon' => 'building', 'route' => 'admin.divisions.index', 'active' => 'admin.divisions.*', 'permission' => 'view-divisions'],
+                ['label' => 'Services', 'icon' => 'briefcase', 'route' => 'admin.services.index', 'active' => ['admin.services.*', 'admin.service-categories.*'], 'permission' => 'view-services'],
+                ['label' => 'Projects', 'icon' => 'hard-hat', 'route' => 'admin.projects.index', 'active' => 'admin.projects.*', 'permission' => 'view-projects'],
+                ['label' => 'Training', 'icon' => 'graduation-cap', 'route' => 'admin.training.index', 'active' => 'admin.training.*', 'permission' => 'view-training'],
+                ['label' => 'News', 'icon' => 'newspaper', 'route' => 'admin.news.index', 'active' => ['admin.news.*', 'admin.news-categories.*'], 'permission' => 'view-news'],
+                ['label' => 'Pages', 'icon' => 'folder', 'route' => 'admin.pages.index', 'active' => ['admin.pages.*', 'admin.leadership.*'], 'permission' => 'view-pages'],
+                ['label' => 'Careers', 'icon' => 'briefcase', 'route' => 'admin.jobs.index', 'active' => 'admin.jobs.*', 'permission' => 'view-careers'],
+                ['label' => 'Downloads', 'icon' => 'download', 'route' => 'admin.documents.index', 'active' => 'admin.documents.*', 'permission' => 'view-downloads'],
+                ['label' => 'Gallery', 'icon' => 'image', 'route' => 'admin.galleries.index', 'active' => 'admin.galleries.*', 'permission' => 'view-gallery'],
+                ['label' => 'FAQs', 'icon' => 'help-circle', 'route' => 'admin.faqs.index', 'active' => 'admin.faqs.*', 'permission' => 'view-faqs'],
+                ['label' => 'Media Library', 'icon' => 'image', 'route' => 'admin.media.index', 'active' => 'admin.media.*', 'permission' => 'view-media'],
             ],
-            [
-                'label' => 'Pages', 'icon' => 'folder',
-                'route' => 'admin.pages.index', 'active' => ['admin.pages.*', 'admin.leadership.*'],
-                'permission' => 'view-pages',
-            ],
-            [
-                'label' => 'Projects', 'icon' => 'hard-hat',
-                'route' => 'admin.projects.index', 'active' => 'admin.projects.*',
-                'permission' => 'view-projects',
-            ],
-            [
-                'label' => 'Training', 'icon' => 'graduation-cap',
-                'route' => 'admin.training.index', 'active' => 'admin.training.*',
-                'permission' => 'view-training',
-            ],
-            [
-                'label' => 'News', 'icon' => 'newspaper',
-                'route' => 'admin.news.index', 'active' => ['admin.news.*', 'admin.news-categories.*'],
-                'permission' => 'view-news',
-            ],
-            [
-                'label' => 'Downloads', 'icon' => 'download',
-                'route' => 'admin.documents.index', 'active' => 'admin.documents.*',
-                'permission' => 'view-downloads',
-            ],
-            [
-                'label' => 'Gallery', 'icon' => 'image',
-                'route' => 'admin.galleries.index', 'active' => 'admin.galleries.*',
-                'permission' => 'view-gallery',
-            ],
-            [
-                'label' => 'FAQs', 'icon' => 'help-circle',
-                'route' => 'admin.faqs.index', 'active' => 'admin.faqs.*',
-                'permission' => 'view-faqs',
-            ],
-            [
-                'label' => 'Careers', 'icon' => 'briefcase',
-                'route' => 'admin.jobs.index', 'active' => 'admin.jobs.*',
-                'permission' => 'view-careers',
-            ],
-            [
-                'label' => 'Applications', 'icon' => 'users',
-                'route' => 'admin.applications.index', 'active' => 'admin.applications.*',
-                'permission' => 'view-applications',
-                'count' => 'applications',
-            ],
-            [
-                'label' => 'Enquiries', 'icon' => 'mail',
-                'route' => 'admin.enquiries.index', 'active' => 'admin.enquiries.*',
-                'permission' => 'view-enquiries',
-                'count' => 'enquiries',
-            ],
-            [
-                'label' => 'Service Requests', 'icon' => 'file-text',
-                'route' => 'admin.service-requests.index', 'active' => 'admin.service-requests.*',
-                'permission' => 'view-service-requests',
-                'count' => 'service-requests',
-            ],
-            [
-                'label' => 'Quote Requests', 'icon' => 'sliders-horizontal',
-                'route' => 'admin.quote-requests.index', 'active' => 'admin.quote-requests.*',
-                'permission' => 'view-quotes',
-                'count' => 'quotes',
-            ],
-            [
-                'label' => 'Media Library', 'icon' => 'image',
-                'route' => 'admin.media.index', 'active' => 'admin.media.*',
-                'permission' => 'view-media',
-            ],
-            [
-                'label' => 'Audit Logs', 'icon' => 'shield-check',
-                'route' => 'admin.audit-logs.index', 'active' => 'admin.audit-logs.*',
-                'permission' => 'view-audit-logs',
-            ],
-            [
-                'label' => 'Users & Roles', 'icon' => 'users',
-                'permission' => 'manage-users', 'pending' => 'Module 14',
+            'System' => [
+                ['label' => 'Users & Roles', 'icon' => 'key', 'route' => 'admin.users.index', 'active' => ['admin.users.*', 'admin.roles.*'], 'permission' => 'manage-users'],
+                ['label' => 'Settings', 'icon' => 'settings', 'route' => 'admin.settings.edit', 'active' => 'admin.settings.*', 'permission' => 'manage-settings'],
+                ['label' => 'Audit Logs', 'icon' => 'shield-check', 'route' => 'admin.audit-logs.index', 'active' => 'admin.audit-logs.*', 'permission' => 'view-audit-logs'],
             ],
         ];
+
+        // Flattened with a section heading on each item; the layout prints a
+        // heading whenever it changes, so empty sections simply disappear.
+        $items = [];
+        foreach ($sections as $section => $entries) {
+            foreach ($entries as $entry) {
+                $items[] = $entry + ['section' => $section ?: null];
+            }
+        }
 
         $visible = [];
 

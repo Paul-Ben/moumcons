@@ -7,6 +7,7 @@ use App\Http\Requests\StoreEnquiryRequest;
 use App\Models\BusinessDivision;
 use App\Models\Enquiry;
 use App\Models\Service;
+use App\Models\Setting;
 use App\Services\RequestNotifier;
 use App\Support\CompanyDetails;
 use Illuminate\Http\RedirectResponse;
@@ -48,6 +49,10 @@ class ContactController extends Controller
                 'email' => CompanyDetails::get('email'),
                 'hours' => CompanyDetails::get('hours'),
                 'social' => CompanyDetails::socialLinks(),
+                // Re-checked here as well as on save: the iframe must only ever load Google Maps.
+                'map' => str_starts_with((string) Setting::get('contact.map_embed_url'), 'https://www.google.com/maps/embed')
+                    ? Setting::get('contact.map_embed_url')
+                    : null,
             ],
         ]);
     }
